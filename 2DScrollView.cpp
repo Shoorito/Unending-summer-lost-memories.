@@ -1,4 +1,4 @@
-#include "2DScroll.h"
+#include "2DScrollView.h"
 #include "TestScene.h"
 #include "CocosFunctions.h"
 
@@ -96,7 +96,7 @@ void C_2DScrollView::setEnabled(const bool isEnabled)
 		pause();
 }
 
-void C_2DScrollView::createByTexture(const std::string& strTexture, const int nTextureCount, const E_SCROLL& eType)
+void C_2DScrollView::createByTexture(const std::string& strTexture, const int nTextureCount, const E_SCROLL& eType, const float fZpos)
 {
 	if (strTexture == "" || nTextureCount < 1 || m_arItemCount[static_cast<int>(eType)] > 0)
 		return;
@@ -109,6 +109,8 @@ void C_2DScrollView::createByTexture(const std::string& strTexture, const int nT
 
 		pSprite = Sprite::create(strTexture);
 		
+		pSprite->setPositionZ(fZpos);
+
 		createItem(pSprite, static_cast<int>(eType));
 	}
 

@@ -157,7 +157,8 @@ public:
 	// @param	"arTexture" = "파일경로 + 파일 명"
 	// @param	"nTextureCount" = "사용 할 텍스쳐의 수"
 	// @param	"eType" = "사용 타입"
-	void createByTexture(const std::string& strTexture, const int nTextureCount, const E_SCROLL& eType);
+	// @param	"fZpos" = "Z축의 높이"
+	void createByTexture(const std::string& strTexture, const int nTextureCount, const E_SCROLL& eType, const float fZpos = 0.0f);
 	
 	// INFO! 다른 두 텍스쳐와 다르게 필수적이지 않은 부가 함수입니다.
 	// 필터 스프라이트를 생성하고 값을 할당합니다.

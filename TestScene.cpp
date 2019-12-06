@@ -1,5 +1,5 @@
 #include "TestScene.h"
-#include "2DScroll.h"
+#include "2DScrollView.h"
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
 
@@ -46,12 +46,12 @@ void C_TestScene::preset()
 {
 	m_pScrollView = C_2DScrollView::create("Field_Texture_01.png", 5);
 
-	m_pScrollView->createByTexture("cloud.png", 10, E_SCROLL::E_CLOUD);
+	m_pScrollView->createByTexture("cloud.png", 10, E_SCROLL::E_CLOUD, 500.0f);
 	m_pScrollView->createFilterByTexture("Filter.png");
 	m_pScrollView->setEnabled(true);
 	m_pScrollView->setRotateByCamera(30.0f, 0.0f, 0.0f);
 	m_pScrollView->setSpeed(1.0f, E_SCROLL::E_BG);
-	m_pScrollView->setSpeed(2.0f, E_SCROLL::E_CLOUD);
+	m_pScrollView->setSpeed(0.5f, E_SCROLL::E_CLOUD);
 	m_pScrollView->setCloudSpawnType(E_CLOUD_TYPE::E_RANDOM);
 
 	Sprite* pSprite(nullptr);
