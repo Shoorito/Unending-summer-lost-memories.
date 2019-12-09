@@ -61,10 +61,12 @@ public:
 		return m_arScore[static_cast<int>(eType)];
 	}
 public:
-	void setItemByRect(const std::string& strFileName, const Rect& recSize, const E_UI& eType);
-	void setGaze(C_ProgressBar* pGaze, const E_GAZE& eType);
+	void setItem(const std::string& strItem, const E_UI& eType);
+	void setItemByRect(const std::string& strItem, const Rect& recSize, const E_UI& eType);
+	void setGazeConfig(const Color3B& c3bColor, const E_GAZE& eType);
+	void setGazeConfig(Sprite* pTexture, const E_GAZE& eType);
 	void setScoreLabel(const std::string& strFontFile, const E_SCORE& eType);
-	void sortItems(const int nStart, const int nEnd);
+	void sortItems(const int nStart, const int nEnd, const float fPadding);
 private:
 	bool init() override;
 private:

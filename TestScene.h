@@ -13,6 +13,7 @@ public:
 private:
     bool init() override;
 	void preset();
+	void testFunc();
 private:
 	C_2DScrollView* m_pScrollView;
 private:
