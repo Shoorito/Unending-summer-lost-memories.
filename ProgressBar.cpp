@@ -53,12 +53,12 @@ S_PNode* C_ProgressBar::getProgressBar(const int nPosition) const
 	return m_vecProgressBar[nPosition];
 }
 
-const float C_ProgressBar::getProgresseMeter(const int nPosition) const
+const S_MeterNode* C_ProgressBar::getProgresseMeter(const int nPosition) const
 {
 	if (nPosition < 0 || nPosition > static_cast<int>(m_vecProgressMeter.size()))
 	{
 		CCLOG("Wrong Position by \"ProgressMeter\" array");
-		return 0.0f;
+		return nullptr;
 	}
 
 	return m_vecProgressMeter[nPosition];
@@ -235,15 +235,16 @@ void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
 		pStencil	 = static_cast<Sprite*>(pStencilNode->getStencil());
 	}
 
-	recTarget = static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode)->getTextureRect();
+	recTarget	  = static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode)->getTextureRect();
+	m_fBorderSize = fBorderSize;
 
 	pStencil->setTextureRect(recTarget);
 
 	recTarget.setRect
 	(
 		0.0f, 0.0f,
-		recTarget.size.width + (fBorderSize * 2.0f),
-		recTarget.size.height + (fBorderSize * 2.0f)
+		recTarget.size.width + (m_fBorderSize * 2.0f),
+		recTarget.size.height + (m_fBorderSize * 2.0f)
 	);
 
 	pClip->setColor(c3bColor);
@@ -269,10 +270,47 @@ void C_ProgressBar::setProgress(const Color3B c3bColor, const Rect & recSize, co
 
 void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 {
+	Size szContentSize(fWidth, fHeight);
+
+	m_pBackground->pProgressNode->setContentSize(szContentSize);
+	
+	if (m_pBorder->isColorTexture)
+	{
+		ClippingNode* pClipNode(nullptr);
+		ClippingNode* pStencilNode(nullptr);
+		Sprite*		  pClip(nullptr);
+		Sprite*		  pStencil(nullptr);
+
+		pClipNode = static_cast<ClippingNode*>(m_pBorder->pProgressNode);
+		pStencilNode = static_cast<ClippingNode*>(pClipNode->getChildByName("ProgressBar_Stencil"));
+		pClip = static_cast<Sprite*>(pClipNode->getStencil());
+		pStencil = static_cast<Sprite*>(pStencilNode->getStencil());
+
+		pStencil->setContentSize(szContentSize);
+
+		szContentSize.width  += m_fBorderSize * 2.0f;
+		szContentSize.height += m_fBorderSize * 2.0f;
+
+		pClip->setContentSize(szContentSize);
+	}
+	else
+	{
+		m_pBorder->pProgressNode->setContentSize(szContentSize);
+	}
+
+	szContentSize.setSize(fWidth, fHeight);
+
+	for (int nGaze(0); nGaze < static_cast<int>(m_vecProgressBar.size()); nGaze++)
+	{
+		szContentSize.width = fWidth * m_vecProgressMeter[nGaze]->fAllotment;
+
+		m_vecProgressBar[nGaze]->pProgressNode->setContentSize(szContentSize);
+	}
 }
 
 void C_ProgressBar::setProgressMeter(const float fProgress, const int nPosition)
 {
+	m_vecProgressMeter[nPosition]->fPercent = fProgress;
 }
 
 void C_ProgressBar::setProgressCount(const int nCount)
@@ -302,7 +340,8 @@ bool C_ProgressBar::init()
 		return false;
 
 	m_pBackground = nullptr;
-	m_pBorder = nullptr;
+	m_pBorder	  = nullptr;
+	m_fBorderSize = 0.0f;
 
 	return true;
 }
@@ -349,7 +388,7 @@ void C_ProgressBar::addProgress()
 	addChild(pSprite);
 
 	m_vecProgressBar.emplace_back(pNode);
-	m_vecProgressMeter.emplace_back(100.0f);
+	//m_vecProgressMeter.emplace_back(100.0f);
 }
 
 void C_ProgressBar::removeProgress()

@@ -15,6 +15,13 @@ struct S_PNode
 	bool  isColorTexture;
 };
 
+struct S_MeterNode
+{
+	float fAllotment;	// Gaze에서 차지하는 비율(7.0f == 7% of 100% ProgressBar)
+	float fCost;		// HP, MP등 상대적으로 움직이는 값.(4000.0f == 100% >> 3000.0f == 75%)
+	float fPercent;		// 하나의 Meter 기준의 현재 남은 비율(10.0f == 10% of Me)
+};
+
 class C_ProgressBar : public Node
 {
 public:
@@ -59,7 +66,7 @@ public:
 	// INFO! "ProgressBar"의 현재 진행도를 반환합니다.
 	// 인수로 지정한 위치에 해당하는 "ProgressBar"의 진행도를 반환하며, 기본 좌표는 "0"입니다.
 	// @return "PROGRESS_METER" = "m_vecProgressMeter[nPosition]"
-	const float getProgresseMeter(const int nPosition = 0) const;
+	const S_MeterNode* getProgresseMeter(const int nPosition = 0) const;
 
 public:
 	void setBackground(const std::string& strFile);
@@ -85,8 +92,10 @@ private:
 	S_PNode* m_pBackground;
 	S_PNode* m_pBorder;
 	std::vector<S_PNode*> m_vecProgressBar{};
-	std::vector<float> m_vecProgressMeter{};
+	std::vector<S_MeterNode*> m_vecProgressMeter{};
 	void(C_ProgressBar::*m_arAdderFunc[2])();
+private:
+	float m_fBorderSize;
 private:
 	C_ProgressBar() {}
 	virtual ~C_ProgressBar() {}

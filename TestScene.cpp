@@ -75,14 +75,13 @@ void C_TestScene::testFunc()
 	ClippingNode* pClipNode(nullptr);
 	ClippingNode* pClipStencil(nullptr);
 	Sprite* pStencil(nullptr);
-	Sprite* pTarget(nullptr);
 
 	pClipStencil = ClippingNode::create();
 	pClipNode	 = ClippingNode::create();
 	pStencil	 = Sprite::create();
-	pTarget		 = Sprite::create();
+	m_pTarget		 = Sprite::create();
 
-	pClipNode->setStencil(pTarget);
+	pClipNode->setStencil(m_pTarget);
 	pClipStencil->setStencil(pStencil);
 
 	pClipNode->setPosition(640.0f, 360.0f);
@@ -91,12 +90,17 @@ void C_TestScene::testFunc()
 	pClipStencil->setAnchorPoint(Vec2(0.5f, 0.5f));
 	pClipStencil->setInverted(true);
 
-	pClipStencil->addChild(pTarget);
+	pClipStencil->addChild(m_pTarget);
 	pClipNode->addChild(pClipStencil);
 	addChild(pClipNode);
 
-	pTarget->setColor(Color3B::RED);
+	m_pTarget->setColor(Color3B::RED);
 	
 	pStencil->setTextureRect(Rect(0.0f, 0.0f, 100.0f, 100.0f));
-	pTarget->setTextureRect(Rect(0.0f, 0.0f, 106.0f, 106.0f));
+	m_pTarget->setTextureRect(Rect(0.0f, 0.0f, 106.0f, 106.0f));
+}
+
+void C_TestScene::update(float dt)
+{
+	m_pTarget->addTextureRect(Rect(0.0f, 0.0f, 1.0f, 1.0f));
 }

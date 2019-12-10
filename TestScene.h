@@ -15,7 +15,11 @@ private:
 	void preset();
 	void testFunc();
 private:
+	void update(float dt);
+private:
 	C_2DScrollView* m_pScrollView;
+private:
+	Sprite* m_pTarget;
 private:
 	static C_TestScene* m_pInstance;
 };
