@@ -11,15 +11,16 @@ USING_NS_CC_EXT;
 
 struct S_PNode
 {
-	Node* pProgressNode;
+	Node* pProgressNode; 
 	bool  isColorTexture;
 };
 
-struct S_MeterNode
+struct S_MNode
 {
-	float fAllotment;	// Gaze에서 차지하는 비율(7.0f == 7% of 100% ProgressBar)
+	float fAllotment;	// Meter의 비율
 	float fCost;		// HP, MP등 상대적으로 움직이는 값.(4000.0f == 100% >> 3000.0f == 75%)
-	float fPercent;		// 하나의 Meter 기준의 현재 남은 비율(10.0f == 10% of Me)
+	float fMaxCost;		// Cost의 초기 최대치.
+	float fWidth;		// 100% 기준 가로 길이.
 };
 
 class C_ProgressBar : public Node
@@ -66,34 +67,41 @@ public:
 	// INFO! "ProgressBar"의 현재 진행도를 반환합니다.
 	// 인수로 지정한 위치에 해당하는 "ProgressBar"의 진행도를 반환하며, 기본 좌표는 "0"입니다.
 	// @return "PROGRESS_METER" = "m_vecProgressMeter[nPosition]"
-	const S_MeterNode* getProgresseMeter(const int nPosition = 0) const;
-
+	S_MNode* getProgresseMeter(const int nPosition = 0) const;
+	
 public:
 	void setBackground(const std::string& strFile);
 	void setBorder(const std::string& strFile);
-	void setProgress(const std::string& strFile, const int nPosition);
+	void setProgress(const std::string& strFile, const float fUsedPercent, const int nPosition);
 public:
 	void createProgressBar(const std::string& strFile, const int nCount = 1);
-	void createProgressBar(const Color3B& c3bColor, const Rect& recBar, const int nCount = 1);
+	void createProgressBar(const Color3B& c3bColor, const int nCount = 1);
 public:
 	void setBackground(const Color3B& c3bColor, const Rect& recSize);
 	void setBorder(const Color3B& c3bColor, const float fBorderSize);
-	void setProgress(const Color3B c3bColor, const Rect& recSize, const int nPosition);
+	void setProgress(const Color3B& c3bColor, const float fUsedPercent, const int nPosition);
 public: 
 	void setContentSize(const float fWidth, const float fHeight);
 	void setProgressMeter(const float fProgress, const int nPosition);
-	void setProgressCount(const int nCount);
+	void setPreloadProgress(const int nCount);
+	void setUseProgressCount(const int nUseProgressCount);
+	void setProgressMaxCost(const float fCost, const int nPosition);
+	void sortProgress();
 private:
 	bool init() override;
 	void preset();
 	void addProgress();
 	void removeProgress();
 private:
+	bool isAllocateable(const float fAllocate, const int nPosition);
+private:
 	S_PNode* m_pBackground;
 	S_PNode* m_pBorder;
 	std::vector<S_PNode*> m_vecProgressBar{};
-	std::vector<S_MeterNode*> m_vecProgressMeter{};
+	std::vector<S_MNode*> m_vecProgressMeter{};
 	void(C_ProgressBar::*m_arAdderFunc[2])();
+private:
+	int m_nNowUsedProgress;
 private:
 	float m_fBorderSize;
 private:
