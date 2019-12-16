@@ -14,11 +14,15 @@ private:
     bool init() override;
 	void preset();
 	void testFunc();
+	void testScroll();
+	void testProgress();
 private:
 	void update(float dt);
 private:
-	C_2DScrollView* m_pScrollView;
+	class C_2DScrollView* m_pScrollView;
+	class C_ProgressBar* m_pProgress;
 private:
+	int m_nNowpos;
 	Sprite* m_pTarget;
 private:
 	static C_TestScene* m_pInstance;

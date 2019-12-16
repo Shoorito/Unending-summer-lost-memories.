@@ -1,7 +1,9 @@
 #include "TestScene.h"
 #include "2DScrollView.h"
+#include "ProgressBar.h"
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
+#include "KeyEventManager.h"
 
 USING_NS_CC;
 
@@ -37,37 +39,18 @@ bool C_TestScene::init()
         return false;
     }
 
-	m_pScrollView	= nullptr;
+	m_pScrollView = nullptr;
+	m_nNowpos = 0;
 
     return true;
 }
 
 void C_TestScene::preset()
 {
-	/*
-	m_pScrollView = C_2DScrollView::create("Field_Texture_01.png", 5);
+	testProgress();
+	scheduleUpdate();
 
-	m_pScrollView->createByTexture("cloud.png", 10, E_SCROLL::E_CLOUD, 500.0f);
-	m_pScrollView->createFilterByTexture("Filter.png");
-	m_pScrollView->setEnabled(true);
-	m_pScrollView->setRotateByCamera(30.0f, 0.0f, 0.0f);
-	m_pScrollView->setSpeed(1.0f, E_SCROLL::E_BG);
-	m_pScrollView->setSpeed(0.5f, E_SCROLL::E_CLOUD);
-	m_pScrollView->setCloudSpawnType(E_CLOUD_TYPE::E_RANDOM);
-	
-	Sprite* pSprite(nullptr);
-
-	pSprite = Sprite::create("UI_BG.png");
-
-	pSprite->setPosition(Director::getInstance()->getWinSize() / 2.0f);
-	pSprite->init();
-	pSprite->setColor(Color3B::RED);
-	pSprite->setTextureRect(Rect(0.0f, 0.0f, 50.0f, 50.0f));
-
-	//addChild(m_pScrollView);
-	addChild(pSprite);
-	*/
-	testFunc();
+	addChild(C_KeyEvent_Manager::create());
 }
 
 void C_TestScene::testFunc()
@@ -79,7 +62,7 @@ void C_TestScene::testFunc()
 	pClipStencil = ClippingNode::create();
 	pClipNode	 = ClippingNode::create();
 	pStencil	 = Sprite::create();
-	m_pTarget		 = Sprite::create();
+	m_pTarget	 = Sprite::create();
 
 	pClipNode->setStencil(m_pTarget);
 	pClipStencil->setStencil(pStencil);
@@ -100,7 +83,76 @@ void C_TestScene::testFunc()
 	m_pTarget->setTextureRect(Rect(0.0f, 0.0f, 106.0f, 106.0f));
 }
 
+void C_TestScene::testScroll()
+{
+	m_pScrollView = C_2DScrollView::create("Field_Texture_01.png", 5);
+
+	m_pScrollView->createByTexture("cloud.png", 10, E_SCROLL::E_CLOUD, 300.0f);
+	m_pScrollView->createFilterByTexture("Filter.png");
+	m_pScrollView->setEnabled(true);
+	m_pScrollView->setRotateByCamera(30.0f, 0.0f, 0.0f);
+	m_pScrollView->setSpeed(1.0f, E_SCROLL::E_BG);
+	m_pScrollView->setSpeed(1.5f, E_SCROLL::E_CLOUD);
+	m_pScrollView->setCloudSpawnType(E_CLOUD_TYPE::E_RANDOM);
+
+	Sprite* pSprite(nullptr);
+
+	pSprite = Sprite::create("UI_BG.png");
+
+	pSprite->setPosition(Director::getInstance()->getWinSize() / 2.0f);
+
+	addChild(m_pScrollView);
+	addChild(pSprite);
+}
+
+void C_TestScene::testProgress()
+{
+	m_pProgress = C_ProgressBar::create();
+
+	m_pProgress->setBackground(Color3B(64, 64, 64), Rect(0.0f, 0.0f, 300.0f, 25.0f));
+	m_pProgress->setBorder(Color3B(244, 178, 35), 3.0f);
+	m_pProgress->createProgressBar(10);
+
+	for (int nProgressHP(0); nProgressHP < 10; nProgressHP++)
+	{
+		m_pProgress->setProgressMaxCost(500.0f, nProgressHP);
+	}
+
+	m_pProgress->setProgress(Color3B::WHITE,	10.0f, 0);
+	m_pProgress->setProgress(Color3B::YELLOW,	10.0f, 1);
+	m_pProgress->setProgress(Color3B::MAGENTA,	10.0f, 2);
+	m_pProgress->setProgress(Color3B::RED,		10.0f, 3);
+	m_pProgress->setProgress(Color3B::WHITE,	10.0f, 4);
+	m_pProgress->setProgress(Color3B::BLUE,		10.0f, 5);
+	m_pProgress->setProgress(Color3B::GRAY,		10.0f, 6);
+	m_pProgress->setProgress(Color3B::GREEN,	10.0f, 7);
+	m_pProgress->setProgress(Color3B::ORANGE,	10.0f, 8);
+	m_pProgress->setProgress(Color3B::BLACK,	10.0f, 9);
+
+	m_pProgress->setPosition(640.0f, 360.0f);
+	m_pProgress->setContentSize(600.0f, 30.0f);
+	m_pProgress->setPreloadProgress(15);
+
+	for (int nProgressHP(10); nProgressHP < 15; nProgressHP++)
+	{
+		m_pProgress->setProgressMaxCost(500.0f, nProgressHP);
+	}
+
+	m_pProgress->setUseProgressCount(15);
+
+	m_nNowpos = m_pProgress->getProgressBarCount() - 1;
+
+	addChild(m_pProgress);
+}
+
 void C_TestScene::update(float dt)
 {
-	m_pTarget->addTextureRect(Rect(0.0f, 0.0f, 1.0f, 1.0f));
+	//m_pTarget->addTextureRect(Rect(0.0f, 0.0f, 1.0f, 1.0f));
+
+	if (m_pProgress->getNowMeter(m_nNowpos) <= 0.0f)
+	{
+		m_nNowpos--;
+	}
+
+	m_pProgress->setProgressMeter(m_pProgress->getProgressMeter(m_nNowpos)->fCost - 1.0f, m_nNowpos);
 }

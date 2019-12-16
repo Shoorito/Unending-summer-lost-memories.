@@ -32,10 +32,10 @@ public:
 	
 	// INFO! 모든 정보를 미리 지정하고 생성하는 형태입니다.
 	// 각각의 유형들은 set함수들로 변경 할 수 있으며, 변경 시 기존의 정보가 지워집니다.
-	// @param "strBG"		= "Background Img 'Route + name'"
-	// @param "strBorder"	= "Border Img 'same to Background'"
-	// @param "strProgress" = "Progress Img 'same to Background'"
-	// @param "nProgressCount" = "Number of 'Progress'"
+	// @param "strBG"			= "Background Img 'Route + name'"
+	// @param "strBorder"		= "Border Img 'same to Background'"
+	// @param "strProgress"		= "Progress Img 'same to Background'"
+	// @param "nProgressCount"	= "Number of 'Progress'"
 	// @return "this"
 	static C_ProgressBar* create
 	(
@@ -67,15 +67,30 @@ public:
 	// INFO! "ProgressBar"의 현재 진행도를 반환합니다.
 	// 인수로 지정한 위치에 해당하는 "ProgressBar"의 진행도를 반환하며, 기본 좌표는 "0"입니다.
 	// @return "PROGRESS_METER" = "m_vecProgressMeter[nPosition]"
-	S_MNode* getProgresseMeter(const int nPosition = 0) const;
+	S_MNode* getProgressMeter(const int nPosition = 0) const;
 	
+public:
+	inline const float& getMeterLimit(const int nPosition) const
+	{
+		return m_vecProgressMeter[nPosition]->fMaxCost;
+	}
+
+	inline const float& getNowMeter(const int nPosition) const
+	{
+		return m_vecProgressMeter[nPosition]->fCost;
+	}
+
+	inline const int& getProgressBarCount() const
+	{
+		return m_nNowUsedProgress;
+	}
 public:
 	void setBackground(const std::string& strFile);
 	void setBorder(const std::string& strFile);
 	void setProgress(const std::string& strFile, const float fUsedPercent, const int nPosition);
 public:
 	void createProgressBar(const std::string& strFile, const int nCount = 1);
-	void createProgressBar(const Color3B& c3bColor, const int nCount = 1);
+	void createProgressBar(const int nCount = 1);
 public:
 	void setBackground(const Color3B& c3bColor, const Rect& recSize);
 	void setBorder(const Color3B& c3bColor, const float fBorderSize);
@@ -86,7 +101,9 @@ public:
 	void setPreloadProgress(const int nCount);
 	void setUseProgressCount(const int nUseProgressCount);
 	void setProgressMaxCost(const float fCost, const int nPosition);
-	void sortProgress();
+	void sortProgresses();
+public:
+	void setPosition(const float fXpos, const float fYpos) override;
 private:
 	bool init() override;
 	void preset();
