@@ -110,49 +110,42 @@ void C_TestScene::testProgress()
 	m_pProgress = C_ProgressBar::create();
 
 	m_pProgress->setBackground(Color3B(64, 64, 64), Rect(0.0f, 0.0f, 300.0f, 25.0f));
-	m_pProgress->setBorder(Color3B(244, 178, 35), 3.0f);
-	m_pProgress->createProgressBar(10);
+	m_pProgress->setBorder(Color3B(244, 178, 35), "TEST_PROGRESS", 3.0f);
+	m_pProgress->createGauges(10);
 
 	for (int nProgressHP(0); nProgressHP < 10; nProgressHP++)
 	{
-		m_pProgress->setProgressMaxCost(500.0f, nProgressHP);
+		m_pProgress->setGaugeMaxCost(500.0f, nProgressHP);
 	}
 
-	m_pProgress->setProgress(Color3B::WHITE,	10.0f, 0);
-	m_pProgress->setProgress(Color3B::YELLOW,	10.0f, 1);
-	m_pProgress->setProgress(Color3B::MAGENTA,	10.0f, 2);
-	m_pProgress->setProgress(Color3B::RED,		10.0f, 3);
-	m_pProgress->setProgress(Color3B::WHITE,	10.0f, 4);
-	m_pProgress->setProgress(Color3B::BLUE,		10.0f, 5);
-	m_pProgress->setProgress(Color3B::GRAY,		10.0f, 6);
-	m_pProgress->setProgress(Color3B::GREEN,	10.0f, 7);
-	m_pProgress->setProgress(Color3B::ORANGE,	10.0f, 8);
-	m_pProgress->setProgress(Color3B::BLACK,	10.0f, 9);
+	m_pProgress->setGauge(Color3B::WHITE,	10.0f, 0);
+	m_pProgress->setGauge(Color3B::YELLOW,	10.0f, 1);
+	m_pProgress->setGauge(Color3B::MAGENTA,	10.0f, 2);
+	m_pProgress->setGauge(Color3B::RED,		10.0f, 3);
+	m_pProgress->setGauge(Color3B::WHITE,	10.0f, 4);
+	m_pProgress->setGauge(Color3B::BLUE,		10.0f, 5);
+	m_pProgress->setGauge(Color3B::GRAY,		10.0f, 6);
+	m_pProgress->setGauge(Color3B::GREEN,	10.0f, 7);
+	m_pProgress->setGauge(Color3B::ORANGE,	10.0f, 8);
+	m_pProgress->setGauge(Color3B::BLACK,	10.0f, 9);
 
 	m_pProgress->setPosition(640.0f, 360.0f);
 	m_pProgress->setContentSize(600.0f, 30.0f);
-	m_pProgress->setPreloadProgress(15);
+	m_pProgress->setPreloadGauge(15);
 
 	for (int nProgressHP(10); nProgressHP < 15; nProgressHP++)
 	{
-		m_pProgress->setProgressMaxCost(500.0f, nProgressHP);
+		m_pProgress->setGaugeMaxCost(500.0f, nProgressHP);
 	}
 
-	m_pProgress->setUseProgressCount(15);
+	m_pProgress->setUseGaugeCount(15);
 
-	m_nNowpos = m_pProgress->getProgressBarCount() - 1;
+	m_nNowpos = m_pProgress->getGaugeCount() - 1;
 
 	addChild(m_pProgress);
 }
 
 void C_TestScene::update(float dt)
 {
-	//m_pTarget->addTextureRect(Rect(0.0f, 0.0f, 1.0f, 1.0f));
 
-	if (m_pProgress->getNowMeter(m_nNowpos) <= 0.0f)
-	{
-		m_nNowpos--;
-	}
-
-	m_pProgress->setProgressMeter(m_pProgress->getProgressMeter(m_nNowpos)->fCost - 1.0f, m_nNowpos);
 }

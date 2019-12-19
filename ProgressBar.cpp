@@ -28,11 +28,11 @@ C_ProgressBar * C_ProgressBar::create(const std::string & strBG, const std::stri
 
 	pBar = C_ProgressBar::create();
 
-	if (pBar)
+	if (pBar != nullptr)
 	{
 		pBar->setBackground(strBG);
 		pBar->setBorder(strBorder);
-		pBar->createProgressBar(strProgressed, nProgressedNum);
+		pBar->createGauges(strProgressed, nProgressedNum);
 
 		return pBar;
 	}
@@ -42,26 +42,15 @@ C_ProgressBar * C_ProgressBar::create(const std::string & strBG, const std::stri
 	}
 }
 
-S_PNode* C_ProgressBar::getProgressBar(const int nPosition) const
+S_PNode* C_ProgressBar::getGauge(const int nPosition) const
 {
-	if (nPosition < 0 || nPosition > static_cast<int>(m_vecProgressBar.size()))
+	if (nPosition < 0 || nPosition > static_cast<int>(m_vecGaugeNode.size()))
 	{
-		CCLOG("Wrong Position by \"progressbar\" array");
+		CCLOG("Wrong Position by \"Gauge\" array");
 		return nullptr;
 	}
 
-	return m_vecProgressBar[nPosition];
-}
-
-S_MNode* C_ProgressBar::getProgressMeter(const int nPosition) const
-{
-	if (nPosition < 0 || nPosition > static_cast<int>(m_vecProgressMeter.size()))
-	{
-		CCLOG("Wrong Position by \"ProgressMeter\" array");
-		return nullptr;
-	}
-
-	return m_vecProgressMeter[nPosition];
+	return m_vecGaugeNode[nPosition];
 }
 
 void C_ProgressBar::setBackground(const std::string & strFile)
@@ -110,21 +99,21 @@ void C_ProgressBar::setBorder(const std::string & strFile)
 	}
 }
 
-void C_ProgressBar::createProgressBar(const std::string & strFile, const int nCount)
+void C_ProgressBar::createGauges(const std::string & strFile, const int nCount)
 {
 	if (!m_pBackground)
 	{
-		CCLOG(u8"ProgressBar는 대상 \"Background\"가 없으면 생성 할 수 없습니다.");
+		CCLOG(u8"\"Gauge\"는 대상 \"Background\"가 없으면 생성 할 수 없습니다.");
 		return;
 	}
 
-	if (static_cast<int>(m_vecProgressBar.size()) > 0)
+	if (static_cast<int>(m_vecGaugeNode.size()) > 0)
 	{
-		CCLOG(u8"이 함수는 \"ProgressBar\"를 처음 생성할 때만 사용합니다.");
+		CCLOG(u8"이 함수는 \"Gauge\"를 처음 생성할 때만 사용합니다.");
 		return;
 	}
 
-	float fWidth(0.0f);
+	float fWidth (0.0f);
 	Rect  recSize(Rect::ZERO);
 
 	fWidth  = m_pBackground->pProgressNode->getContentSize().width;
@@ -132,24 +121,24 @@ void C_ProgressBar::createProgressBar(const std::string & strFile, const int nCo
 
 	recSize.setRect(0.0f, 0.0f, fWidth, m_pBackground->pProgressNode->getContentSize().height);
 
-	for (int nProgressBar(0); nProgressBar < nCount; nProgressBar++)
+	for (int nGauge(0); nGauge < nCount; nGauge++)
 	{
-		S_PNode* pNode(nullptr);
-		S_MNode* pMNode(nullptr);
-		ui::Scale9Sprite* pBar(nullptr);
+		S_PNode*		  pNode(nullptr);
+		S_MNode*		  pMNode(nullptr);
+		ui::Scale9Sprite* pMeter(nullptr);
 
-		pBar   = ui::Scale9Sprite::create(strFile);
 		pNode  = new(std::nothrow) S_PNode();
 		pMNode = new(std::nothrow) S_MNode();
+		pMeter = ui::Scale9Sprite::create(strFile);
 
 		pNode->isColorTexture = false;
-		pNode->pProgressNode  = pBar;
+		pNode->pProgressNode  = pMeter;
 
-		pBar->setTextureRect(recSize);
-		pBar->setAnchorPoint(Vec2(0.0f, 0.5f));
-		pBar->setPosition
+		pMeter->setTextureRect(recSize);
+		pMeter->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+		pMeter->setPosition
 		(
-			fWidth * static_cast<float>(nProgressBar),
+			fWidth * static_cast<float>(nGauge),
 			m_pBackground->pProgressNode->getPositionY()
 		);
 
@@ -158,14 +147,16 @@ void C_ProgressBar::createProgressBar(const std::string & strFile, const int nCo
 		pMNode->fAllotment	  = 100.0f / static_cast<float>(nCount);
 		pMNode->fWidth		  = fWidth;
 
-		addChild(pBar);
+		addChild(pMeter);
 
-		m_vecProgressBar.emplace_back(pNode);
-		m_vecProgressMeter.emplace_back(pMNode);
+		m_vecGaugeNode.emplace_back(pNode);
+		m_vecGaugeMeter.emplace_back(pMNode);
+
+		m_nNowUsedGauge++;
 	}
 }
 
-void C_ProgressBar::createProgressBar(const int nCount)
+void C_ProgressBar::createGauges(const int nCount)
 {
 	if (!m_pBackground)
 	{
@@ -173,7 +164,7 @@ void C_ProgressBar::createProgressBar(const int nCount)
 		return;
 	}
 
-	if (static_cast<int>(m_vecProgressBar.size()) > 0)
+	if (static_cast<int>(m_vecGaugeNode.size()) > 0)
 	{
 		CCLOG(u8"이 함수는 \"ProgressBar\"를 처음 생성할 때만 사용합니다.");
 		return;
@@ -187,7 +178,7 @@ void C_ProgressBar::createProgressBar(const int nCount)
 
 	recSize.setRect(0.0f, 0.0f, fWidth, m_pBackground->pProgressNode->getContentSize().height);
 
-	for (int nProgressBar(0); nProgressBar < nCount; nProgressBar++)
+	for (int nGauge(0); nGauge < nCount; nGauge++)
 	{
 		S_PNode* pNode(nullptr);
 		S_MNode* pMNode(nullptr);
@@ -202,10 +193,10 @@ void C_ProgressBar::createProgressBar(const int nCount)
 
 		pBar->setColor(Color3B::MAGENTA);
 		pBar->setTextureRect(recSize);
-		pBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+		pBar->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 		pBar->setPosition
 		(
-			fWidth * static_cast<float>(nProgressBar),
+			fWidth * static_cast<float>(nGauge),
 			m_pBackground->pProgressNode->getPositionY()
 		);
 
@@ -216,10 +207,10 @@ void C_ProgressBar::createProgressBar(const int nCount)
 
 		addChild(pBar);
 
-		m_vecProgressBar.emplace_back(pNode);
-		m_vecProgressMeter.emplace_back(pMNode);
+		m_vecGaugeNode.emplace_back(pNode);
+		m_vecGaugeMeter.emplace_back(pMNode);
 
-		m_nNowUsedProgress++;
+		m_nNowUsedGauge++;
 	}
 }
 
@@ -246,12 +237,12 @@ void C_ProgressBar::setBackground(const Color3B & c3bColor, const Rect & recSize
 	pSprite->setTextureRect(recSize);
 }
 
-void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
+void C_ProgressBar::setBorder(const Color3B & c3bColor, const std::string& strTagName, const float fBorderSize)
 {
-	if (!m_pBorder)
+	if (!m_pBorder || m_fBorderSize == fBorderSize || strTagName == "")
 		return;
 
-	Rect		  recTarget{};
+	Rect		  recTarget(Rect::ZERO);
 	Sprite*		  pStencil(nullptr);
 	Sprite*		  pClip(nullptr);
 	ClippingNode* pClipNode(nullptr);
@@ -265,6 +256,7 @@ void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
 		pClip		 = Sprite::create();
 		pClipNode	 = ClippingNode::create();
 		pStencilNode = ClippingNode::create();
+		m_strBorderStencil = strTagName;
 		
 		m_pBorder->isColorTexture = true;
 		m_pBorder->pProgressNode  = pClipNode;
@@ -276,7 +268,7 @@ void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
 		pStencilNode->setAnchorPoint(0.5f, 0.5f);
 
 		pStencilNode->setInverted(true);
-		pStencilNode->setName("ProgressBar_Stencil");
+		pStencilNode->setName(m_strBorderStencil);
 		
 		pStencilNode->addChild(pClip);
 		pClipNode->addChild(pStencilNode);
@@ -286,13 +278,13 @@ void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
 	else
 	{
 		pClipNode	 = static_cast<ClippingNode*>(m_pBorder->pProgressNode);
-		pStencilNode = static_cast<ClippingNode*>(pClipNode->getChildByName("ProgressBar_Stencil"));
+		pStencilNode = static_cast<ClippingNode*>(pClipNode->getChildByName(m_strBorderStencil));
 		pClip		 = static_cast<Sprite*>(pClipNode->getStencil());
 		pStencil	 = static_cast<Sprite*>(pStencilNode->getStencil());
 	}
 
-	recTarget	  = static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode)->getTextureRect();
-	m_fBorderSize = fBorderSize;
+	recTarget			= static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode)->getTextureRect();
+	m_fBorderSize		= fBorderSize;
 
 	pStencil->setTextureRect(recTarget);
 
@@ -307,26 +299,27 @@ void C_ProgressBar::setBorder(const Color3B & c3bColor, const float fBorderSize)
 	pClip->setTextureRect(recTarget);
 }
 
-void C_ProgressBar::setProgress(const std::string& strFile, const float fUsedPercent, const int nPosition)
+void C_ProgressBar::setGauge(const std::string& strFile, const float fUsedPercent, const int nPosition)
 {
-	if (nPosition < 0 || nPosition > static_cast<int>(m_vecProgressBar.size()))
+	if (nPosition < 0 || nPosition > static_cast<int>(m_vecGaugeNode.size()))
 		return;
 
-	if (!isAllocateable(fUsedPercent, nPosition) || !m_vecProgressMeter[nPosition]->fMaxCost)
+	if (!isAllocateable(fUsedPercent, nPosition) || !m_vecGaugeMeter[nPosition]->fMaxCost)
 		return;
 
 	ui::Scale9Sprite* pSprite(nullptr);
 	ui::Scale9Sprite* pBG(nullptr);
 	S_MNode*		  pMeter(nullptr);
 
-	pSprite = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nPosition]->pProgressNode);
+	pSprite = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nPosition]->pProgressNode);
 	pBG		= static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode);
-	pMeter  = m_vecProgressMeter[nPosition];
+	pMeter  = m_vecGaugeMeter[nPosition];
 
-	if (m_vecProgressBar[nPosition]->isColorTexture)
+	if (m_vecGaugeNode[nPosition]->isColorTexture)
 	{
 		pSprite->init();
-		m_vecProgressBar[nPosition]->isColorTexture = false;
+		m_vecGaugeNode[nPosition]->isColorTexture = false;
+		m_vecGaugeNode[nPosition]->isColorTexture = false;
 	}
 
 	pSprite->setTexture(strFile);
@@ -338,12 +331,12 @@ void C_ProgressBar::setProgress(const std::string& strFile, const float fUsedPer
 	pSprite->setContentYSize(m_pBackground->pProgressNode->getContentSize().height);
 }
 
-void C_ProgressBar::setProgress(const Color3B& c3bColor, const float fUsedPercent, const int nPosition)
+void C_ProgressBar::setGauge(const Color3B& c3bColor, const float fUsedPercent, const int nPosition)
 {
-	if (nPosition < 0 || nPosition > static_cast<int>(m_vecProgressBar.size()))
+	if (nPosition < 0 || nPosition > static_cast<int>(m_vecGaugeNode.size()))
 		return;
 
-	if (!isAllocateable(fUsedPercent, nPosition) || !m_vecProgressMeter[nPosition]->fMaxCost)
+	if (!isAllocateable(fUsedPercent, nPosition) || !m_vecGaugeMeter[nPosition]->fMaxCost)
 		return;
 
 	ui::Scale9Sprite* pSprite(nullptr);
@@ -351,14 +344,14 @@ void C_ProgressBar::setProgress(const Color3B& c3bColor, const float fUsedPercen
 	S_MNode*		  pMeter(nullptr);
 	Rect			  recSize(Rect::ZERO);
 
-	pMeter  = m_vecProgressMeter[nPosition];
-	pSprite = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nPosition]->pProgressNode);
+	pMeter  = m_vecGaugeMeter[nPosition];
+	pSprite = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nPosition]->pProgressNode);
 	pBG		= static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode);
 
-	if (!m_vecProgressBar[nPosition]->isColorTexture)
+	if (!m_vecGaugeNode[nPosition]->isColorTexture)
 	{
 		pSprite->init();
-		m_vecProgressBar[nPosition]->isColorTexture = true;
+		m_vecGaugeNode[nPosition]->isColorTexture = true;
 	}
 
 	pMeter->fAllotment = fUsedPercent;
@@ -373,6 +366,9 @@ void C_ProgressBar::setProgress(const Color3B& c3bColor, const float fUsedPercen
 void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 {
 	if (!m_pBackground || !m_pBorder)
+		return;
+
+	if (fWidth < 0.0f || fHeight < 0.0f)
 		return;
 
 	float fXpos(0.0f);
@@ -391,7 +387,7 @@ void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 		Sprite*		  pStencil(nullptr);
 
 		pClipNode	 = static_cast<ClippingNode*>(m_pBorder->pProgressNode);
-		pStencilNode = static_cast<ClippingNode*>(pClipNode->getChildByName("ProgressBar_Stencil"));
+		pStencilNode = static_cast<ClippingNode*>(pClipNode->getChildByName(m_strBorderStencil));
 		pClip		 = static_cast<Sprite*>(pClipNode->getStencil());
 		pStencil	 = static_cast<Sprite*>(pStencilNode->getStencil());
 
@@ -409,15 +405,14 @@ void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 	
 	szContentSize.height = fHeight;
 
-	for (int nGaze(0); nGaze < static_cast<int>(m_vecProgressBar.size()); nGaze++)
+	for (int nGaze(0); nGaze < static_cast<int>(m_vecGaugeNode.size()); nGaze++)
 	{
 		ui::Scale9Sprite* pSprite(nullptr);
-		S_MNode* pNode(m_vecProgressMeter[nGaze]);
+		S_MNode* pNode(m_vecGaugeMeter[nGaze]);
 
-		pNode->fWidth = fWidth * (pNode->fAllotment / 100.0f);
-		
+		pNode->fWidth		= fWidth * (pNode->fAllotment / 100.0f);
 		szContentSize.width = pNode->fWidth * (pNode->fCost / pNode->fMaxCost);
-		pSprite = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nGaze]->pProgressNode);
+		pSprite				= static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nGaze]->pProgressNode);
 
 		pSprite->setContentSize(szContentSize);
 		pSprite->setPosition(pBG->getPosition());
@@ -427,30 +422,30 @@ void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 		fXpos += szContentSize.width;
 	}
 	
-	sortProgresses();
+	sortGauges();
 }
 
-void C_ProgressBar::setProgressMeter(const float fProgress, const int nPosition)
+void C_ProgressBar::setGaugeMeter(const float fProgress, const int nPosition)
 {
-	S_MNode* pNode(m_vecProgressMeter[nPosition]);
+	S_MNode* pNode(m_vecGaugeMeter[nPosition]);
 	ui::Scale9Sprite* pMeter(nullptr);
 
 	if (!pNode->fMaxCost || fProgress < 0.0f || nPosition < 0)
 		return;
 
 	pNode->fCost = fProgress;
-	pMeter		 = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nPosition]->pProgressNode);
+	pMeter		 = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nPosition]->pProgressNode);
 
 	pMeter->setContentXSize(pNode->fWidth * (pNode->fCost / pNode->fMaxCost));
 }
 
-void C_ProgressBar::setPreloadProgress(const int nCount)
+void C_ProgressBar::setPreloadGauge(const int nCount)
 {
 	int  nSize(0);
 	int  arAdder[2]{ 1, -1 };
 	bool isAdd(false);
 	
-	nSize = static_cast<int>(m_vecProgressBar.size());
+	nSize = static_cast<int>(m_vecGaugeNode.size());
 
 	if (nCount < 1 || nSize < 1 || nSize == nCount)
 		return;
@@ -465,21 +460,21 @@ void C_ProgressBar::setPreloadProgress(const int nCount)
 	}
 }
 
-void C_ProgressBar::setUseProgressCount(const int nUseProgressCount)
+void C_ProgressBar::setUseGaugeCount(const int nUseProgressCount)
 {
-	if (static_cast<int>(m_vecProgressBar.size()) < nUseProgressCount)
+	if (static_cast<int>(m_vecGaugeNode.size()) < nUseProgressCount)
 		return;
 
+	float			  fXpos(0.0f);
+	float			  fAllotment(0.0f);
 	ui::Scale9Sprite* pSprite(nullptr);
 	ui::Scale9Sprite* pBG(nullptr);
-	float fXpos(0.0f);
-	float fAllotment(0.0f);
 
-	if (nUseProgressCount < m_nNowUsedProgress)
+	if (nUseProgressCount < m_nNowUsedGauge)
 	{
-		for (int nInvisible(m_nNowUsedProgress - 1); nInvisible >= nUseProgressCount; nInvisible--)
+		for (int nInvisible(m_nNowUsedGauge - 1); nInvisible >= nUseProgressCount; nInvisible--)
 		{
-			pSprite = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nInvisible]->pProgressNode);
+			pSprite = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nInvisible]->pProgressNode);
 
 			pSprite->setVisible(false);
 			pSprite->setPosition(-5000.0f, -5000.0f);
@@ -487,14 +482,28 @@ void C_ProgressBar::setUseProgressCount(const int nUseProgressCount)
 	}
 
 	pBG					= static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode);
-	m_nNowUsedProgress  = nUseProgressCount;
-	fAllotment			= 100.0f / static_cast<float>(m_nNowUsedProgress);
+	m_nNowUsedGauge		= nUseProgressCount;
+	fAllotment			= 100.0f / static_cast<float>(m_nNowUsedGauge);
 
-	for (int nList(0); nList < m_nNowUsedProgress; nList++)
+	for (int nList(0); nList < m_nNowUsedGauge; nList++)
 	{
-		S_MNode* pNode(m_vecProgressMeter[nList]);
+		S_MNode* pNode(m_vecGaugeMeter[nList]);
 
-		pSprite			  = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nList]->pProgressNode);
+		if (pNode->fMaxCost < 0.0f)
+		{
+			std::string strMessage("");
+
+			strMessage += "ProgressBar의 ";
+			strMessage += std::to_string(nList + 1);
+			strMessage += "번째 맴버의 \"fCost\"가 0.0이거나 음수입니다.";
+
+			CCLOG(strMessage.c_str());
+			CCLOG("해당 맴버 부터의 값들을 재설정 해주시기 바랍니다.");
+
+			return;
+		}
+
+		pSprite			  = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nList]->pProgressNode);
 		pNode->fAllotment = fAllotment;
 		pNode->fWidth	  = pBG->getContentSize().width * (pNode->fAllotment / 100.0f);
 		
@@ -508,15 +517,15 @@ void C_ProgressBar::setUseProgressCount(const int nUseProgressCount)
 	}
 }
 
-void C_ProgressBar::setProgressMaxCost(const float fCost, const int nPosition)
+void C_ProgressBar::setGaugeMaxCost(const float fCost, const int nPosition)
 {
-	if (fCost < 1.0f || nPosition > static_cast<int>(m_vecProgressBar.size()) || nPosition < 0)
+	if (fCost < 1.0f || nPosition > static_cast<int>(m_vecGaugeNode.size()) || nPosition < 0)
 		return;
 
-	if (m_vecProgressMeter[nPosition]->fCost == 0.0f)
-		m_vecProgressMeter[nPosition]->fCost = fCost;
+	if (m_vecGaugeMeter[nPosition]->fCost == 0.0f)
+		m_vecGaugeMeter[nPosition]->fCost = fCost;
 
-	m_vecProgressMeter[nPosition]->fMaxCost = fCost;
+	m_vecGaugeMeter[nPosition]->fMaxCost = fCost;
 }
 
 bool C_ProgressBar::init()
@@ -529,7 +538,7 @@ bool C_ProgressBar::init()
 	m_arAdderFunc[0]	= nullptr;
 	m_arAdderFunc[1]	= nullptr;
 	m_fBorderSize		= 0.0f;
-	m_nNowUsedProgress	= 0;
+	m_nNowUsedGauge		= 0;
 
 	return true;
 }
@@ -551,11 +560,11 @@ void C_ProgressBar::preset()
 	m_pBorder->isColorTexture	  = false;
 	m_pBackground->pProgressNode  = pBorder;
 	m_pBorder->pProgressNode	  = pBackground;
-	m_arAdderFunc[false]		  = &C_ProgressBar::addProgress;
-	m_arAdderFunc[true]			  = &C_ProgressBar::removeProgress;
+	m_arAdderFunc[false]		  = &C_ProgressBar::addGauge;
+	m_arAdderFunc[true]			  = &C_ProgressBar::removeGauge;
 }
 
-void C_ProgressBar::addProgress()
+void C_ProgressBar::addGauge()
 {
 	S_PNode*		  pNode(nullptr);
 	S_MNode*		  pMeterNode(nullptr);
@@ -573,10 +582,10 @@ void C_ProgressBar::addProgress()
 	pSprite->setVisible(false);
 	pSprite->setPosition(-5000.0f, -5000.0f);
 
-	m_vecProgressBar.emplace_back(pNode);
-	m_vecProgressMeter.emplace_back(pMeterNode);
+	m_vecGaugeNode.emplace_back(pNode);
+	m_vecGaugeMeter.emplace_back(pMeterNode);
 
-	pNode->isColorTexture = m_vecProgressBar.back()->isColorTexture;
+	pNode->isColorTexture = m_vecGaugeNode.back()->isColorTexture;
 	pNode->pProgressNode  = pSprite;
 
 	pMeterNode->fAllotment	= 0.0f;
@@ -587,13 +596,13 @@ void C_ProgressBar::addProgress()
 	addChild(pSprite);
 }
 
-void C_ProgressBar::removeProgress()
+void C_ProgressBar::removeGauge()
 {
 	S_PNode* pNode(nullptr);
 	S_MNode* pMNode(nullptr);
 
-	pNode  = m_vecProgressBar.back();
-	pMNode = m_vecProgressMeter.back();
+	pNode  = m_vecGaugeNode.back();
+	pMNode = m_vecGaugeMeter.back();
 
 	removeChild(pNode->pProgressNode);
 
@@ -605,8 +614,8 @@ void C_ProgressBar::removeProgress()
 	pMNode->fWidth		= 0.0f;
 	pMNode->fCost		= 0.0f;
 
-	m_vecProgressBar.pop_back();
-	m_vecProgressMeter.pop_back();
+	m_vecGaugeNode.pop_back();
+	m_vecGaugeMeter.pop_back();
 
 	delete pNode;
 	delete pMNode;
@@ -619,9 +628,9 @@ bool C_ProgressBar::isAllocateable(const float fAllocate, const int nPosition)
 {
 	float fSum(0.0f);
 
-	for (int nMeter(0); nMeter < m_nNowUsedProgress; nMeter++)
+	for (int nMeter(0); nMeter < m_nNowUsedGauge; nMeter++)
 	{
-		fSum += m_vecProgressMeter[nMeter]->fAllotment * (nMeter != nPosition);
+		fSum += m_vecGaugeMeter[nMeter]->fAllotment * (nMeter != nPosition);
 	}
 
 	fSum += fAllocate;
@@ -629,9 +638,9 @@ bool C_ProgressBar::isAllocateable(const float fAllocate, const int nPosition)
 	return fSum <= 100.0f;
 }
 
-void C_ProgressBar::sortProgresses()
+void C_ProgressBar::sortGauges()
 {
-	if (!m_nNowUsedProgress)
+	if (!m_nNowUsedGauge)
 		return;
 
 	float fXpos(0.0f);
@@ -643,9 +652,9 @@ void C_ProgressBar::sortProgresses()
 	fXpos  -= pSprite->getContentSize().width / 2.0f;
 	fYpos	= pSprite->getPositionY();
 
-	for (int nCount(0); nCount < m_nNowUsedProgress; nCount++)
+	for (int nCount(0); nCount < m_nNowUsedGauge; nCount++)
 	{
-		pSprite = static_cast<ui::Scale9Sprite*>(m_vecProgressBar[nCount]->pProgressNode);
+		pSprite = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nCount]->pProgressNode);
 
 		pSprite->setPosition(fXpos, fYpos);
 
@@ -658,5 +667,5 @@ void C_ProgressBar::setPosition(const float fXpos, const float fYpos)
 	m_pBackground->pProgressNode->setPosition(fXpos, fYpos);
 	m_pBorder->pProgressNode->setPosition(fXpos, fYpos);
 	
-	sortProgresses();
+	sortGauges();
 }
