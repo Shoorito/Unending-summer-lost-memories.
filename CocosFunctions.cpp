@@ -21,8 +21,25 @@ void C_Functions::encryptText(const std::string & strText, const std::string & s
 	if (static_cast<int>(strText.size()) < static_cast<int>(strEncrypt.size()))
 		return;
 
+	if (&strText == &strResult)
+		return;
+
+	int nCodeCount(0);
+
 	for (int nText(0); nText < static_cast<int>(strText.size()); nText++)
 	{
-		strResult.push_back(strText[nText] ^ strEncrypt[nText]);
+		if (!(strText[nText] == ' ' || strText[nText] == '\t' || strText[nText] == '\n' || strText[nText] == '\r'))
+		{
+			if (nCodeCount >= static_cast<int>(strEncrypt.size()))
+				nCodeCount = 0;
+
+			strResult.push_back(strText[nText] ^ strEncrypt[nCodeCount]);
+
+			nCodeCount++;
+		}
+		else
+		{
+			strResult.push_back(strText[nText]);
+		}
 	}
 }

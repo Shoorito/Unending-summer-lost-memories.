@@ -160,6 +160,12 @@ public:
 	// @param "recSize"		 = "TEXTURE_RECT"
 	void setGauge(const Color3B& c3bColor, const float fUsedPercent, const int nPosition);
 
+	// INFO! "GAUGE"의 "POSITION"별 색상을 정할 수 있는 편의 함수입니다.
+	// "IS_COLOR_TEXTURE"의 값에 상관없이 사용 가능하나 개발 시 의도한 경우는 "IS_COLOR_TEXTURE = TRUE"입니다.
+	// @param "c3bColor"  = "TEXTURE_COLOR"
+	// @param "nPosition" = "METER_NUMBER"
+	void setGaugeColor(const Color3B& c3bColor, const int nPosition = 0);
+
 public:
 	// INFO! "PROGRESS_BAR"의 모든 개체들을 기존의 "setContentSize"처럼 사용 가능한 편의함수 입니다.
 	// @param "fWidth"  = "BAR_WIDTH"
@@ -167,9 +173,9 @@ public:
 	void setContentSize(const float fWidth, const float fHeight);
 
 	// INFO! "GAUGE[POSITION]"의 "현재 진행도"를 설정 할 수 있는 편의 함수입니다.
-	// @param "fProgressed" = "SET_PROGRESS"
+	// @param "fCost"		= "SET_PROGRESS_COST"
 	// @param "nPosition"	= "GAUGE_ARRAY_NUMBER"
-	void setGaugeMeter(const float fProgressed, const int nPosition);
+	void setGaugeCost(const float fCost, const int nPosition = 0);
 
 	// INFO! "GAUGE"를 비활성화 상태에서 추가 할 수 있는 함수입니다.
 	// 이 함수로 추가한 "GAUGE"맴버는 "VECTOR"에는 포함되어 있지만 "사용 중인 항목"으로는 취급하지 않습니다.
@@ -187,7 +193,7 @@ public:
 	// INFO! 지정한 "GAUGE"의 최대 수치 값을 지정합니다.
 	// @param "fCost"		= "MAX_GAUGE_METER"
 	// @param "nPosition"	= "GAUGE_NUMBER"
-	void setGaugeMaxCost(const float fCost, const int nPosition);
+	void setGaugeMaxCost(const float fCost, const int nPosition = 0);
 
 	// INFO! 게이지 맴버들을 모두 정렬합니다.(오름차순을 기준으로 합니다.)
 	void sortGauges();

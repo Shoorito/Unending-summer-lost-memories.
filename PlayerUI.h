@@ -16,7 +16,7 @@ enum class E_UI
 	E_MAX
 };
 
-enum class E_GAZE
+enum class E_GAUGE
 {
 	E_HP,
 	E_MP,
@@ -34,7 +34,9 @@ enum class E_SCORE
 class C_ProgressBar;
 
 // INFO! 해당 클래스는 "PlayerUI"의 전반을 관리합니다. 단, HP, MP등 직접적인 값의 관리가 아닌 "UI"적인 부분만 관여합니다.
-// @since 2019-12-07日
+// WARNING! 해당 클래스는 "PlayerState" 클래스의 정보를 바탕으로 구성됩니다.
+// 따라서 "PlayerState"가 생성되지 않은 상태에서 사용하게 될 경우 정상적으로 작동하지 않습니다.
+// @since 2019-12-22日
 
 class C_PlayerUI : public Node
 {
@@ -51,34 +53,44 @@ public:
 		return m_arItem[static_cast<int>(eType)]; 
 	}
 
-	inline C_ProgressBar* getGaze(const E_GAZE& eType) const
+	inline C_ProgressBar* getGauge(const E_GAUGE& eType) const
 	{ 
-		return m_arGaze[static_cast<int>(eType)];
+		return m_arGauge[static_cast<int>(eType)];
 	}
 
 	inline Label* getScoreLabel(const E_SCORE& eType) const
 	{
 		return m_arScore[static_cast<int>(eType)];
 	}
+
 public:
 	void setItem(const std::string& strItem, const E_UI& eType);
 	void setItemByRect(const std::string& strItem, const Rect& recSize, const E_UI& eType);
-	void setGazeConfig(const Color3B& c3bColor, const E_GAZE& eType);
-	void setGazeConfig(Sprite* pTexture, const E_GAZE& eType);
-	void setScoreLabel(const std::string& strFontFile, const E_SCORE& eType);
+	void setGaugeConfig(const Color3B& c3bColor, const E_GAUGE& eType);
+	void setGaugeConfig(Sprite* pTexture, const E_GAUGE& eType);
+	void setScoreFont(const std::string& strFontFile, const E_SCORE& eType);
 	void sortItems(const int nStart, const int nEnd, const float fPadding);
 private:
 	bool init() override;
 private:
 	void preset();
+	void presetByGauge();
 	void createItems();
-	void createGaze();
+	void createGauges();
 	void createScore();
+	void loadScore();
+	void loadByFirst();
+private:
+	void upperValue();
 private:
 	Sprite* m_arItem[static_cast<int>(E_UI::E_MAX)]{};
-	C_ProgressBar* m_arGaze[static_cast<int>(E_GAZE::E_MAX)]{};
+	C_ProgressBar* m_arGauge[static_cast<int>(E_GAUGE::E_MAX)]{};
 private:
 	Label* m_arScore[static_cast<int>(E_SCORE::E_MAX)]{};
+private:
+	int m_nScore;
+	int m_nHighScore;
+	int m_nDefaultFontSize;
 private:
 	static C_PlayerUI* m_pInstance;
 private:

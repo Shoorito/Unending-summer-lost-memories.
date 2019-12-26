@@ -363,6 +363,15 @@ void C_ProgressBar::setGauge(const Color3B& c3bColor, const float fUsedPercent, 
 	pSprite->setTextureRect(recSize);
 }
 
+void C_ProgressBar::setGaugeColor(const Color3B & c3bColor, const int nPosition)
+{
+	ui::Scale9Sprite* pTarget(nullptr);
+
+	pTarget = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nPosition]->pProgressNode);
+
+	pTarget->setColor(c3bColor);
+}
+
 void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 {
 	if (!m_pBackground || !m_pBorder)
@@ -425,15 +434,15 @@ void C_ProgressBar::setContentSize(const float fWidth, const float fHeight)
 	sortGauges();
 }
 
-void C_ProgressBar::setGaugeMeter(const float fProgress, const int nPosition)
+void C_ProgressBar::setGaugeCost(const float fCost, const int nPosition)
 {
 	S_MNode* pNode(m_vecGaugeMeter[nPosition]);
 	ui::Scale9Sprite* pMeter(nullptr);
 
-	if (!pNode->fMaxCost || fProgress < 0.0f || nPosition < 0)
+	if (!pNode->fMaxCost || fCost < 0.0f || nPosition < 0)
 		return;
 
-	pNode->fCost = fProgress;
+	pNode->fCost = fCost;
 	pMeter		 = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nPosition]->pProgressNode);
 
 	pMeter->setContentXSize(pNode->fWidth * (pNode->fCost / pNode->fMaxCost));
