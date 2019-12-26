@@ -86,7 +86,6 @@ bool C_PlayerUI::init()
 		return false;
 
 	m_nScore			= 0;
-	m_nHighScore		= 0;
 	m_nDefaultFontSize  = 20;
 
 	return true;
@@ -169,7 +168,11 @@ void C_PlayerUI::loadScore()
 			return;
 		}
 
-		std::string strFileInfo("");
+		int				nHighScore(0);
+		std::string		strFileInfo("");
+		C_PlayerState*	pState(nullptr);
+
+		pState = C_PlayerState::getInstance();
 
 		C_Functions::encryptText(strTemp, u8"드라마호텔델루나의엔딩은열린엔딩이지만그래도좋았다", strFileInfo);
 	
@@ -177,12 +180,13 @@ void C_PlayerUI::loadScore()
 		{
 			if (strFileInfo[nExtract] == '\n')
 			{
-				nExtract = 0xffffffff - 1;
+				nExtract = 2100000000;
 			}
 			else
 			{
-				m_nHighScore *= 10;
-				m_nHighScore += static_cast<int>(strFileInfo[nExtract]) - 48;
+				nHighScore  = pState->getHighScore();
+				nHighScore *= 10;
+				nHighScore += static_cast<int>(strFileInfo[nExtract]) - 48;
 			}
 		}
 	}
@@ -199,8 +203,8 @@ void C_PlayerUI::loadByFirst()
 	FileUtils*  pFileManager(nullptr);
 
 	strFirst	 = "HighScore : 100000\n";
-	m_nHighScore = 100000;
-
+	
+	C_PlayerState::getInstance()->setHighScore(100000);
 	C_Functions::encryptText(strFirst, u8"드라마호텔델루나의엔딩은열린엔딩이지만그래도좋았다", strFileInfo);
 
 	pFileManager->writeStringToFile(strFileInfo, pFileManager->getWritablePath() + "Score.txt");
@@ -208,4 +212,69 @@ void C_PlayerUI::loadByFirst()
 
 void C_PlayerUI::upperValue()
 {
+}
+
+void C_PlayerUI::updateScore()
+{
+	int nCount(C_PlayerState::getInstance()->getScore() - m_nScore);
+
+	if (nCount)
+	{
+		int nSize(0);
+		int nSqrt(0);
+		int nAdder(0);
+
+		nSize = (int)m_strScore.size();
+		nSqrt = C_Functions::getDigits(nCount);
+		nAdder = C_Functions::getCommaPosition(nSqrt) + nSqrt;
+
+		if (nSize < nAdder)
+		{
+			C_Functions::updateScoreLength(nAdder, nSize, m_nNowUsedComma, m_strScore);
+		}
+		else
+		{
+			bool isAdded(false);
+
+			for (int nCheck(nSize - nAdder); nCheck == (nSize - nAdder); nCheck--)
+			{
+				if (C_Functions::isComma(nCheck, m_strScore))
+				{
+					nAdder++;
+				}
+				else if (m_strScore[nCheck] == ('9' + isAdded))
+				{
+					m_strScore[nCheck] = '0';
+
+					if (!nCheck)
+					{
+						nCheck = 999999;
+
+						C_Functions::updateScoreLength(nSqrt + 1, nSize, m_nNowUsedComma, m_strScore);
+					}
+					else
+					{
+						m_strScore[nCheck - 1 - C_Functions::isComma(nCheck - 1, m_strScore)] += 1;
+						isAdded = true;
+					}
+
+					nAdder++;
+				}
+				else if (!isAdded)
+				{
+					m_strScore[nCheck] += 1;
+				}
+			}
+		}
+
+		m_nScore += pow(10, nSqrt - 1);
+
+		if (m_nScore > C_PlayerState::getInstance()->getHighScore())
+		{
+			C_PlayerState::getInstance()->setHighScore(m_nScore);
+			m_arScore[static_cast<int>(E_SCORE::E_HIGH)]->setString(m_strScore);
+		}
+
+		m_arScore[static_cast<int>(E_SCORE::E_NORMAL)]->setString(m_strScore);
+	}
 }

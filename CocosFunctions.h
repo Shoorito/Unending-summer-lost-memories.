@@ -19,6 +19,14 @@ public:
 	// @param "strEncrypt" = "encrypt Text"
 	// @param "strResult" = "result save target"
 	static void encryptText(const std::string& strText, const std::string& strEncrypt, std::string& strResult);
+
+	static int getDigits(const int nNumber);
+
+	static int getCommaPosition(const int nNumber);
+
+	static bool isComma(const int nPosition, const std::string& strTarget);
+
+	static void updateScoreLength(int nAdder, int nSize, int& nCommaCount, std::string& strTarget);
 private:
 	C_Functions()  {}
 	~C_Functions() {}

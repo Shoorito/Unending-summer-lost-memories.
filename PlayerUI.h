@@ -82,6 +82,7 @@ private:
 	void loadByFirst();
 private:
 	void upperValue();
+	void updateScore();
 private:
 	Sprite* m_arItem[static_cast<int>(E_UI::E_MAX)]{};
 	C_ProgressBar* m_arGauge[static_cast<int>(E_GAUGE::E_MAX)]{};
@@ -89,8 +90,10 @@ private:
 	Label* m_arScore[static_cast<int>(E_SCORE::E_MAX)]{};
 private:
 	int m_nScore;
-	int m_nHighScore;
+	int m_nNowUsedComma;
 	int m_nDefaultFontSize;
+private:
+	std::string m_strScore;
 private:
 	static C_PlayerUI* m_pInstance;
 private:

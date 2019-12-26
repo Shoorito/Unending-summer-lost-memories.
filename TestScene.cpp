@@ -42,10 +42,6 @@ bool C_TestScene::init()
     }
 
 	m_pScrollView  = nullptr;
-	m_pTestScore   = nullptr;
-	m_nTestScore   = 0;
-	m_nNowUsedComa = 0;
-	m_strTestScore = "";
 
     return true;
 }
@@ -64,20 +60,7 @@ void C_TestScene::preset()
 	addChild(C_KeyEvent_Manager::create());
 	*/
 
-	C_PlayerState::create()->setScore(9999999999);
-
-	m_strTestScore = "0";
-	m_nTestScore   = 0;
-	m_pTestScore   = Label::createWithTTF(m_strTestScore, "fonts/NotoSansCJKkr-Bold.otf", 25);
-
-	m_pTestScore->setPosition(640.0f, 360.0f);
-	m_pTestScore->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
-
 	//testPlayerUI();
-
-	addChild(m_pTestScore);
-
-	schedule(schedule_selector(C_TestScene::update), 0.1f);
 }
 
 void C_TestScene::testFunc()
@@ -185,135 +168,4 @@ void C_TestScene::testPlayerUI()
 	strFileInfo = FileUtils::getInstance()->getWritablePath() + "PLAYER_FILE.txt";
 
 	FileUtils::getInstance()->writeStringToFile(strResult, strFileInfo);
-}
-
-bool C_TestScene::testIsComa(const int nPosition)
-{
-	return m_strTestScore[nPosition] == ',';
-}
-
-void C_TestScene::testUpdateLength(int nAdder, int nSize)
-{
-	int nChange(0);
-	int nComaCount(0);
-	std::string strTemp("");
-
-	for (int nText(0); nText < nAdder; nText++)
-	{
-		strTemp.push_back('0');
-	}
-
-	strTemp[0]	= '1';
-	nChange		= static_cast<int>(strTemp.size());
-
-	for (int nChanged(0); nChange > g_arInitScore[nChanged]; nChanged++)
-	{
-		strTemp[nChange - g_arInitScore[nChanged]] = ',';
-		nComaCount++;
-	}
-
-	nChange--;
-	nSize--;
-
-	for (int nLoop(0); nLoop <= nSize; nLoop++)
-	{
-		if (m_strTestScore[nSize - nLoop] != ',')
-		{
-			strTemp[nChange - nLoop] = m_strTestScore[nSize - nLoop];
-		}
-	}
-
-	m_strTestScore = strTemp;
-	m_nNowUsedComa = nComaCount;
-}
-
-int C_TestScene::testPosComa(const int nSqrt)
-{
-	int nComa(0);
-
-	while((nSqrt + nComa >= g_arInitScore[nComa]))
-	{
-		nComa++;
-	}
-
-	return nComa;
-}
-
-int C_TestScene::testDigits(const int nNumber)
-{
-	int nDivide(0);
-	int nRemain(0);
-	int nResult(1);
-
-	nRemain = nNumber % 10; // >> ex. 123456 >> 6
-	nDivide = nNumber / 10; // >> ex. 123456 >> 12345
-
-	while (!nRemain)
-	{
-		nRemain = nDivide % 10; // >> ex. 123456 >> 6
-		nDivide /= 10; // >> ex. 123456 >> 12345
-
-		nResult++;
-	}
-
-	return nResult;
-}
-
-void C_TestScene::update(float dt)
-{
-	int nCount(C_PlayerState::getInstance()->getScore() - m_nTestScore);
-
-	if (nCount)
-	{
-		int nSize(0);
-		int nSqrt(0);
-		int nAdder(0);
-
-		nSqrt  = testDigits(nCount); // 1 => 1, 10 => 2, 100 => 3, 1000 => 4
-		nSize  = (int)m_strTestScore.size();
-		nAdder = testPosComa(nSqrt) + nSqrt;
-
-		if (nSize < nAdder)
-		{
-			testUpdateLength(nAdder, nSize);
-		}
-		else
-		{
-			bool isAdded(false);
-
-			for (int nCheck(nSize - nAdder); nCheck == (nSize - nAdder); nCheck--)
-			{
-				if (testIsComa(nCheck))
-				{
-					nAdder++;
-				}
-				else if (m_strTestScore[nCheck] == ('9' + isAdded))
-				{
-					m_strTestScore[nCheck] = '0';
-
-					if (!nCheck)
-					{
-						nCheck = 999999;
-
-						testUpdateLength(nSqrt + 1, nSize);
-					}
-					else
-					{
-						m_strTestScore[nCheck - 1 - testIsComa(nCheck - 1)] += 1;
-						isAdded = true;
-					}
-
-					nAdder++;
-				}
-				else if(!isAdded)
-				{
-					m_strTestScore[nCheck] += 1;
-				}
-			}
-		}
-
-		m_nTestScore += pow(10, nSqrt - 1);
-
-		m_pTestScore->setString(m_strTestScore);
-	}
 }
