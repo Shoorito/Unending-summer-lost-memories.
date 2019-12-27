@@ -50,26 +50,27 @@ public:
 	// @return "m_arItem[TYPE]"
 	inline Sprite* getItem(const E_UI& eType) const
 	{ 
-		return m_arItem[static_cast<int>(eType)]; 
+		return m_arUIItem[static_cast<int>(eType)]; 
 	}
 
 	inline C_ProgressBar* getGauge(const E_GAUGE& eType) const
 	{ 
-		return m_arGauge[static_cast<int>(eType)];
+		return m_arUIGauge[static_cast<int>(eType)];
 	}
 
 	inline Label* getScoreLabel(const E_SCORE& eType) const
 	{
-		return m_arScore[static_cast<int>(eType)];
+		return m_arUIScore[static_cast<int>(eType)];
 	}
 
 public:
 	void setItem(const std::string& strItem, const E_UI& eType);
 	void setItemByRect(const std::string& strItem, const Rect& recSize, const E_UI& eType);
+public:
 	void setGaugeConfig(const Color3B& c3bColor, const E_GAUGE& eType);
-	void setGaugeConfig(Sprite* pTexture, const E_GAUGE& eType);
-	void setScoreFont(const std::string& strFontFile, const E_SCORE& eType);
-	void sortItems(const int nStart, const int nEnd, const float fPadding);
+	void setGaugeConfig(const std::string& strFile, const E_GAUGE& eType);
+public:
+	void setScoreFontFile(const std::string& strFontFile, const E_SCORE& eType);
 private:
 	bool init() override;
 private:
@@ -78,22 +79,18 @@ private:
 	void createItems();
 	void createGauges();
 	void createScore();
-	void loadScore();
-	void loadByFirst();
 private:
-	void upperValue();
 	void updateScore();
 private:
-	Sprite* m_arItem[static_cast<int>(E_UI::E_MAX)]{};
-	C_ProgressBar* m_arGauge[static_cast<int>(E_GAUGE::E_MAX)]{};
+	Sprite*			m_arUIItem[static_cast<int>(E_UI::E_MAX)]{};
+	C_ProgressBar*	m_arUIGauge[static_cast<int>(E_GAUGE::E_MAX)]{};
+	Label*			m_arUIScore[static_cast<int>(E_SCORE::E_MAX)]{};
 private:
-	Label* m_arScore[static_cast<int>(E_SCORE::E_MAX)]{};
-private:
-	int m_nScore;
+	int m_nUIScore;
 	int m_nNowUsedComma;
 	int m_nDefaultFontSize;
 private:
-	std::string m_strScore;
+	std::string m_strUIScore;
 private:
 	static C_PlayerUI* m_pInstance;
 private:

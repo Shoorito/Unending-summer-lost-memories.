@@ -3,46 +3,85 @@
 
 using namespace cocos2d;
 
+enum class E_PLAYER_STATUS
+{
+	E_MAX_HP,
+	E_MAX_MP,
+	E_MAX_EXP,
+	E_HIGH_SCORE,
+	E_MAX
+};
+
 class C_PlayerState
 {
 public:
 	static C_PlayerState* create();
 	static inline C_PlayerState* getInstance() { return m_pInstance; }
 public:
-	void setMaxHP(const float fHP);
-	void setMaxMP(const float fMP);
-	void setMaxEXP(const float fEXP);
+	void setMaxHP	 (const int nHP);
+	void setMaxMP	 (const int nMP);
+	void setMaxEXP	 (const int nEXP);
 public:
-	void setHP(const float fHP);
-	void setMP(const float fMP);
-	void setEXP(const float fEXP);
-	void setScore(const int nScore);
+	void setHP		 (const int nHP);
+	void setMP		 (const int nMP);
+	void setEXP		 (const int nEXP);
+	void setScore	 (const int nScore);
 	void setHighScore(const int nScore);
 public:
-	void addHP(const float fAdder);
-	void addMP(const float fAdder);
-	void addEXP(const float fAdder);
-	void addScore(const int nAdder);
+	void addHP		 (const int nAdder);
+	void addMP		 (const int nAdder);
+	void addEXP		 (const int nAdder);
+	void addScore	 (const int nAdder);
 public:
-	inline const float& getMaxHP() const  { return m_fPlayerMaxHP; }
-	inline const float& getMaxMP() const  { return m_fPlayerMaxMP; }
-	inline const float& getMaxEXP() const { return m_fPlayerMaxEXP; }
+	inline const int& getHP() const 
+	{ 
+		return m_nPlayerHP;
+	}
+
+	inline const int& getMP() const
+	{ 
+		return m_nPlayerMP;
+	}
+
+	inline const int& getMaxHP() const
+	{ 
+		return m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)];
+	}
+
+	inline const int& getMaxMP() const
+	{ 
+		return m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)];
+	}
+
+	inline const int& getMaxEXP() const
+	{ 
+		return m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)];
+	}
+
+	inline const int& getScore() const
+	{ 
+		return m_nScore;
+	}
+
+	inline const int& getHighScore() const
+	{ 
+		return m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)];
+	}
 public:
-	inline const int& getScore()	 const { return m_nScore; }
-	inline const int& getHighScore() const { return m_nHighScore; }
+	void savePlayerStatus();
 private:
 	void init();
+	void setup();
+	void loadPlayerStatus();
+	void readFile(const std::string& strInfo);
 private:
-	float m_fPlayerHP;
-	float m_fPlayerMP;
-	float m_fPlayerEXP;
-private:
-	float m_fPlayerMaxHP;
-	float m_fPlayerMaxMP;
-	float m_fPlayerMaxEXP;
+	int m_nPlayerHP;
+	int m_nPlayerMP;
+	int m_nPlayerEXP;
 private:
 	int m_nScore;
-	int m_nHighScore;
+private:
+	int m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX)]{};
 private:
 	static C_PlayerState* m_pInstance;
 private:

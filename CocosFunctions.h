@@ -13,12 +13,12 @@ public:
 	static void safeDelete(void* pDeletePointer);
 
 	// INFO! 파일 암호화 설정/해제 함수입니다. 
-	// WARNING! 암호키는 반드시 암호화 대상보다 같거나 길어야하며, 한 번 암호화된 텍스트는 반드시 암호화 한 키로 해제해야 합니다.
-	// WARNING! 또한 결과를 넣을 "string"은 "clear"상태이어야 합니다.
-	// @param "strText" = "encrypt Target"
-	// @param "strEncrypt" = "encrypt Text"
-	// @param "strResult" = "result save target"
-	static void encryptText(const std::string& strText, const std::string& strEncrypt, std::string& strResult);
+	// PATCHED! 2019-12-27
+	// 이제 "strEncrypt"의 길이에 상관 없이 암호화가 가능합니다.
+	// 또한 이제 입력한 "strTarget"에 암호화가 적용됩니다.
+	// @param "strTarget"	= "encrypt Target"
+	// @param "strEncrypt"	= "encrypt Text"
+	static void encryptText(std::string& strTarget, const std::string& strEncrypt);
 
 	static int getDigits(const int nNumber);
 
@@ -26,7 +26,11 @@ public:
 
 	static bool isComma(const int nPosition, const std::string& strTarget);
 
+	static const bool isCheckSkip(const char& cWord);
+
 	static void updateScoreLength(int nAdder, int nSize, int& nCommaCount, std::string& strTarget);
+
+	static const int convertToInt(const std::string& strTarget);
 private:
 	C_Functions()  {}
 	~C_Functions() {}

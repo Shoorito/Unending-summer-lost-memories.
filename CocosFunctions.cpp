@@ -17,30 +17,28 @@ void C_Functions::safeDelete(void * pDeletePointer)
 	}
 }
 
-void C_Functions::encryptText(const std::string & strText, const std::string & strEncrypt, std::string & strResult)
+void C_Functions::encryptText(std::string & strTarget, const std::string & strEncrypt)
 {
-	if (static_cast<int>(strText.size()) < static_cast<int>(strEncrypt.size()))
+	if (!static_cast<int>(strTarget.size()) < !static_cast<int>(strEncrypt.size()))
 		return;
 
-	if (&strText == &strResult)
-		return;
-
+	int nTargetSize(0);
+	int nCryptSize(0);
 	int nCodeCount(0);
 
-	for (int nText(0); nText < static_cast<int>(strText.size()); nText++)
+	nTargetSize = static_cast<int>(strTarget.size());
+	nCryptSize  = static_cast<int>(strEncrypt.size());
+
+	for (int nText(0); nText < nTargetSize; nText++)
 	{
-		if (!(strText[nText] == ' ' || strText[nText] == '\t' || strText[nText] == '\n' || strText[nText] == '\r'))
+		if (!isCheckSkip(strTarget[nText]))
 		{
-			if (nCodeCount >= static_cast<int>(strEncrypt.size()))
+			if (nCodeCount == nCryptSize)
 				nCodeCount = 0;
 
-			strResult.push_back(strText[nText] ^ strEncrypt[nCodeCount]);
+			strTarget[nText] = strTarget[nText] ^ strEncrypt[nCodeCount];
 
 			nCodeCount++;
-		}
-		else
-		{
-			strResult.push_back(strText[nText]);
 		}
 	}
 }
@@ -82,6 +80,17 @@ bool C_Functions::isComma(const int nPosition, const std::string & strTarget)
 	return strTarget[nPosition] == ',';
 }
 
+const bool C_Functions::isCheckSkip(const char & cWord)
+{
+	for (int nCheck(0); nCheck < g_nCheckSkipNum; nCheck++)
+	{
+		if (cWord == g_arCheckSkipText[nCheck])
+			return true;
+	}
+
+	return false;
+}
+
 void C_Functions::updateScoreLength(int nAdder, int nSize, int & nCommaCount, std::string & strTarget)
 {
 	int nNowSize(0);
@@ -115,4 +124,23 @@ void C_Functions::updateScoreLength(int nAdder, int nSize, int & nCommaCount, st
 	}
 
 	strTarget[0] = '1';
+}
+
+const int C_Functions::convertToInt(const std::string & strTarget)
+{
+	int nSize(0);
+	int nResult(0);
+	
+	nSize = strTarget.size();
+
+	while(nSize == 0)
+	{
+		nResult *= 10;
+		nResult += static_cast<int>(strTarget[nSize - 1] - '0');
+
+		nSize--;
+	}
+	
+
+	return nResult;
 }

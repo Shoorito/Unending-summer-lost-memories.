@@ -60,7 +60,7 @@ void C_TestScene::preset()
 	addChild(C_KeyEvent_Manager::create());
 	*/
 
-	//testPlayerUI();
+	testPlayerUI();
 }
 
 void C_TestScene::testFunc()
@@ -160,12 +160,15 @@ void C_TestScene::testPlayerUI()
 	std::string strResult("");
 	int nCodeCount(0);
 
-	strFileInfo = FileUtils::getInstance()->getStringFromFile("PLAYER_FILE.txt");
+	strResult = FileUtils::getInstance()->getWritablePath() + "PLAYER_FILE.txt";
 
-	C_Functions::encryptText(strFileInfo, strCode, strResult);
+	strFileInfo = FileUtils::getInstance()->getStringFromFile(FileUtils::getInstance()->getWritablePath() + "PLAYER_FILE.txt");
+	/*
+	C_Functions::encryptText(strFileInfo, strCode);
 
 	strFileInfo.clear();
 	strFileInfo = FileUtils::getInstance()->getWritablePath() + "PLAYER_FILE.txt";
 
 	FileUtils::getInstance()->writeStringToFile(strResult, strFileInfo);
+	*/
 }
