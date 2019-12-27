@@ -133,14 +133,11 @@ const int C_Functions::convertToInt(const std::string & strTarget)
 	
 	nSize = strTarget.size();
 
-	while(nSize == 0)
+	for (int nCheck(0); nCheck < nSize; nCheck++)
 	{
 		nResult *= 10;
-		nResult += static_cast<int>(strTarget[nSize - 1] - '0');
-
-		nSize--;
+		nResult += static_cast<int>(strTarget[nCheck] - '0');
 	}
 	
-
 	return nResult;
 }
