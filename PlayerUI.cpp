@@ -1,6 +1,7 @@
 #include "PlayerUI.h"
 #include "PlayerState.h"
 #include "ProgressBar.h"
+#include "ResourceTable.h"
 #include "CocosFunctions.h"
 
 C_PlayerUI* C_PlayerUI::m_pInstance = nullptr;
@@ -38,18 +39,18 @@ C_PlayerUI * C_PlayerUI::create()
 	}
 }
 
-void C_PlayerUI::setItem(const std::string& strItem, const E_UI & eType)
+void C_PlayerUI::setItem(const std::string& strItem, const E_UI_IMG & eType)
 {
 	m_arUIItem[static_cast<int>(eType)]->setTexture(strItem);
 }
 
-void C_PlayerUI::setItemByRect(const std::string & strItem, const Rect & recSize, const E_UI & eType)
+void C_PlayerUI::setItemByRect(const std::string & strItem, const Rect & recSize, const E_UI_IMG & eType)
 {
 	m_arUIItem[static_cast<int>(eType)]->setTexture(strItem);
 	m_arUIItem[static_cast<int>(eType)]->setTextureRect(recSize);
 }
 
-void C_PlayerUI::setGaugeConfig(const Color3B & c3bColor, const E_GAUGE & eType)
+void C_PlayerUI::setGaugeConfig(const Color3B & c3bColor, const E_UI_GAUGE & eType)
 {
 	float fPercent(0.0f);
 
@@ -58,7 +59,7 @@ void C_PlayerUI::setGaugeConfig(const Color3B & c3bColor, const E_GAUGE & eType)
 	m_arUIGauge[static_cast<int>(eType)]->setGauge(c3bColor, fPercent, 0);
 }
 
-void C_PlayerUI::setGaugeConfig(const std::string& strFile, const E_GAUGE & eType)
+void C_PlayerUI::setGaugeConfig(const std::string& strFile, const E_UI_GAUGE & eType)
 {
 	float fPercent(0.0f);
 
@@ -67,7 +68,7 @@ void C_PlayerUI::setGaugeConfig(const std::string& strFile, const E_GAUGE & eTyp
 	m_arUIGauge[static_cast<int>(eType)]->setGauge(strFile, fPercent, 0);
 }
 
-void C_PlayerUI::setScoreFontFile(const std::string & strFontFile, const E_SCORE & eType)
+void C_PlayerUI::setScoreFontFile(const std::string & strFontFile, const E_UI_TITLE & eType)
 {
 	if (!FileUtils::getInstance()->isFileExist(strFontFile))
 	{
@@ -77,7 +78,7 @@ void C_PlayerUI::setScoreFontFile(const std::string & strFontFile, const E_SCORE
 		return;
 	}
 
-	m_arUIScore[static_cast<int>(eType)]->initWithTTF(strFontFile, "", m_nDefaultFontSize);
+	m_arUITitle[static_cast<int>(eType)]->initWithTTF(strFontFile, "", m_nDefaultFontSize);
 }
 
 bool C_PlayerUI::init()
@@ -86,7 +87,11 @@ bool C_PlayerUI::init()
 		return false;
 
 	m_nUIScore			= 0;
+	m_nNowUsedComma		= 0;
+	m_nUIDifficulty		= 0;
 	m_nDefaultFontSize  = 20;
+	m_strUIScore		= "";
+
 
 	return true;
 }
@@ -95,9 +100,11 @@ void C_PlayerUI::preset()
 {
 	createItems();
 	createGauges();
-	createScore();
+	createLabel();
 
+	presetByItems();
 	presetByGauge();
+	presetByLabel();
 }
 
 void C_PlayerUI::presetByGauge()
@@ -106,22 +113,81 @@ void C_PlayerUI::presetByGauge()
 
 	pState = C_PlayerState::getInstance();
 
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_HP)]->setGaugeColor(Color3B(255, 0, 0));
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_MP)]->setGaugeColor(Color3B(0, 0, 255));
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_POWER)]->setGaugeColor(Color3B(127, 0, 255));
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_HP)]->setGaugeColor(Color3B::RED);
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MP)]->setGaugeColor(Color3B::BLUE);
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeColor(Color3B(127, 0, 255));
 
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_HP)]->setGaugeMaxCost(pState->getMaxHP());
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_MP)]->setGaugeMaxCost(pState->getMaxMP());
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_POWER)]->setGaugeMaxCost(pState->getMaxEXP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_HP)]->setGaugeMaxCost(pState->getMaxHP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MP)]->setGaugeMaxCost(pState->getMaxMP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeMaxCost(pState->getMaxEXP());
 
-	m_arUIGauge[static_cast<int>(E_GAUGE::E_POWER)]->setGaugeCost(0.0f);
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeCost(0.0f);
+
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_HP)]->setPosition(1135.0f, 485.0f);
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MP)]->setPosition(1135.0f, 435.0f);
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setPosition(1135.0f, 385.0f);
+}
+
+void C_PlayerUI::presetByItems()
+{
+	m_arUIItem[static_cast<int>(E_UI_IMG::E_BG)]->setTexture("UI_BG.png");
+	m_arUIItem[static_cast<int>(E_UI_IMG::E_LOGO)]->setTexture("UI_Logo.png");
+
+	m_arUIItem[static_cast<int>(E_UI_IMG::E_BG)]->setPosition(g_fWinSizeX / 2.0f, g_fWinSizeY / 2.0f);
+	m_arUIItem[static_cast<int>(E_UI_IMG::E_LOGO)]->setPosition(1135.0f, 200.0f);
+}
+
+void C_PlayerUI::presetByLabel()
+{
+	std::string strHighScore("");
+
+	for (int nLabel(0); nLabel < static_cast<int>(E_UI_TITLE::E_MAX); nLabel++)
+	{
+		m_arUITitle[nLabel]->initWithTTF("", "fonts/NotoSansCJKkr-Bold.otf", static_cast<float>(m_nDefaultFontSize));
+	}
+
+	for (int nScore(0); nScore < static_cast<int>(E_UI_SCORE::E_MAX); nScore++)
+	{
+		m_arUIScore[nScore]->initWithTTF("", "fonts/NotoSansCJKkr-Bold.otf", static_cast<float>(m_nDefaultFontSize));
+	}
+
+	C_Functions::convertToString(C_PlayerState::getInstance()->getHighScore(), strHighScore);
+
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_DIFFICULTY)]->setString(g_arDifficulty[m_nUIDifficulty]);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_HIGHSCORE)]->setString("HIGHSCORE");
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_SCORE)]->setString("SCORE");
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_HP)]->setString("HP");
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_MP)]->setString("MP");
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_EXP)]->setString("EXP");
+
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_SCORE)]->setString("0");
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_HIGHSCORE)]->setString(strHighScore);
+
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_DIFFICULTY)]->setTTFSize(25.0f);
+
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_SCORE)]->setTTFSize(25.0f);
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_HIGHSCORE)]->setTTFSize(25.0f);
+
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_DIFFICULTY)]->setPosition(1135.0f, 675.0f);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_HIGHSCORE)]->setPosition(1135.0f, 635.0f);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_SCORE)]->setPosition(1135.0f, 570.0f);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_HP)]->setPosition(1135.0f, 510.0f);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_MP)]->setPosition(1135.0f, 460.0f);
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_EXP)]->setPosition(1135.0f, 410.0f);
+
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_HIGHSCORE)]->setPosition(1135.0f, 602.5f);
+	m_arUIScore[static_cast<int>(E_UI_SCORE::E_SCORE)]->setPosition(1135.0f, 540.0f);
+
+	m_arUITitle[static_cast<int>(E_UI_TITLE::E_DIFFICULTY)]->enableOutline(g_arOutlineColor[m_nUIDifficulty], 3);
 }
 
 void C_PlayerUI::createItems()
 {
-	for (int nItem(0); nItem < static_cast<int>(E_UI::E_MAX); nItem++)
+	for (int nItem(0); nItem < static_cast<int>(E_UI_IMG::E_MAX); nItem++)
 	{
 		m_arUIItem[nItem] = Sprite::create();
+
+		addChild(m_arUIItem[nItem]);
 	}
 }
 
@@ -129,12 +195,12 @@ void C_PlayerUI::createGauges()
 {
 	std::string strGaugeTag("PLAYER_UI_Gauge_0");
 
-	for (int nGauge(0); nGauge < static_cast<int>(E_GAUGE::E_MAX); nGauge++)
+	for (int nGauge(0); nGauge < static_cast<int>(E_UI_GAUGE::E_MAX); nGauge++)
 	{
 		m_arUIGauge[nGauge]  = C_ProgressBar::create();
 		strGaugeTag		    += static_cast<char>(48 + nGauge + 1);
 
-		m_arUIGauge[nGauge]->setBackground(Color3B(64, 64, 64), Rect(0.0f, 0.0f, 300.0f, 20.0f));
+		m_arUIGauge[nGauge]->setBackground(Color3B(64, 64, 64), Rect(0.0f, 0.0f, 217.0f, 20.0f));
 		m_arUIGauge[nGauge]->setBorder(Color3B(244, 178, 35), strGaugeTag, 3.0f);
 		m_arUIGauge[nGauge]->createGauges();
 
@@ -143,10 +209,25 @@ void C_PlayerUI::createGauges()
 	}
 }
 
-void C_PlayerUI::createScore()
+void C_PlayerUI::createLabel()
 {
-	m_arUIScore[static_cast<int>(E_SCORE::E_NORMAL)] = Label::create();
-	m_arUIScore[static_cast<int>(E_SCORE::E_HIGH)]   = Label::create();
+	for (int nLabel(0); nLabel < static_cast<int>(E_UI_TITLE::E_MAX); nLabel++)
+	{
+		m_arUITitle[nLabel] = Label::create();
+
+		addChild(m_arUITitle[nLabel]);
+	}
+
+	for (int nScore(0); nScore < static_cast<int>(E_UI_SCORE::E_MAX); nScore++)
+	{
+		m_arUIScore[nScore] = Label::create();
+	
+		addChild(m_arUIScore[nScore]);
+	}
+}
+
+void C_PlayerUI::update(float fDelay)
+{
 }
 
 void C_PlayerUI::updateScore()
@@ -207,9 +288,13 @@ void C_PlayerUI::updateScore()
 		if (m_nUIScore > C_PlayerState::getInstance()->getHighScore())
 		{
 			C_PlayerState::getInstance()->setHighScore(m_nUIScore);
-			m_arUIScore[static_cast<int>(E_SCORE::E_HIGH)]->setString(m_strUIScore);
+			m_arUITitle[static_cast<int>(E_UI_TITLE::E_HIGHSCORE)]->setString(m_strUIScore);
 		}
 
-		m_arUIScore[static_cast<int>(E_SCORE::E_NORMAL)]->setString(m_strUIScore);
+		m_arUITitle[static_cast<int>(E_UI_TITLE::E_SCORE)]->setString(m_strUIScore);
 	}
+}
+
+void C_PlayerUI::updateGauges()
+{
 }

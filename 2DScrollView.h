@@ -214,6 +214,7 @@ private:
 	int		m_arItemCount[static_cast<int>(E_SCROLL::E_MAX)]{};
 private:
 	float	m_fDelaytime;
+	float	m_fUpdateYpos;
 private:
 	bool	m_isNowUpdated;
 	bool	m_isEnabled;

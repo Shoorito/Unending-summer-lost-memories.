@@ -43,6 +43,37 @@ void C_Functions::encryptText(std::string & strTarget, const std::string & strEn
 	}
 }
 
+void C_Functions::convertToString(const int nTarget, std::string & strResult)
+{
+	int nPreSize(0);
+	int nNowSize(0);
+	int nPosition(1);
+
+	strResult = std::to_string(nTarget);
+	nPreSize  = static_cast<int>(strResult.size());
+
+	for (int nCount(0); nPreSize >= g_arInitScore[nCount]; nCount++)
+	{
+		strResult.push_back('0');
+	}
+
+	nNowSize = static_cast<int>(strResult.size());
+
+	for (int nCount(1); nCount <= nNowSize; nCount++)
+	{
+		if (nCount % 4 == 0)
+		{
+			strResult[nNowSize - nCount] = ',';
+		}
+		else
+		{
+			strResult[nNowSize - nCount] = strResult[nPreSize - nPosition];
+
+			nPosition++;
+		}
+	}
+}
+
 int C_Functions::getDigits(const int nNumber)
 {
 	int nDivide(0);

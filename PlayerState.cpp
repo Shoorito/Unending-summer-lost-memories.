@@ -142,7 +142,7 @@ void C_PlayerState::setup()
 
 	pUtils = FileUtils::getInstance();
 
-	if (pUtils->isFileExist(pUtils->getWritablePath() + "PLAYER_FILE.txt"))
+	if (pUtils->isFileExist(pUtils->getWritablePath() + "PLAYER_FILE.magu"))
 	{
 		loadPlayerStatus();
 	}
@@ -153,7 +153,7 @@ void C_PlayerState::setup()
 
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)]		= m_nPlayerHP;
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)]		= m_nPlayerMP;
-		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)]	= 0;
+		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)]	= 100;
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)] = 100000;
 
 		savePlayerStatus();
@@ -167,9 +167,9 @@ void C_PlayerState::loadPlayerStatus()
 
 	pUtil = FileUtils::getInstance();
 	
-	strData = pUtil->getStringFromFile(pUtil->getWritablePath() + "PLAYER_FILE.txt");
+	strData = pUtil->getStringFromFile(pUtil->getWritablePath() + "PLAYER_FILE.magu");
 
-	C_Functions::encryptText(strData, g_strEncryptKey);
+	C_Functions::encryptText(strData, g_strEncryptKey01);
 
 	readFile(strData);
 }
@@ -183,10 +183,12 @@ void C_PlayerState::readFile(const std::string & strInfo)
 
 	nSize = strInfo.size();
 
-	while(nCursor == nSize)
+	while(nCursor != nSize && g_nStatusNum != nStatusNum)
 	{
 		if (strInfo[nCursor] == '=')
 		{
+			nCursor++;
+
 			while (strInfo[nCursor] != '\n')
 			{
 				if (!C_Functions::isCheckSkip(strInfo[nCursor]))
@@ -224,10 +226,10 @@ void C_PlayerState::savePlayerStatus()
 		strSaveInfo += g_arSaveStatus[nItem];
 		strSaveInfo += " = ";
 		strSaveInfo += std::to_string(m_arSaveStatus[nItem]);
-		strSaveInfo += '\n';
+		strSaveInfo += "\r\n";
 	}
 
-	C_Functions::encryptText(strSaveInfo, g_strEncryptKey);
+	C_Functions::encryptText(strSaveInfo, g_strEncryptKey01);
 
-	pUtil->writeStringToFile(strSaveInfo, pUtil->getWritablePath() + "PLAYER_FILE.txt");
+	pUtil->writeStringToFile(strSaveInfo, pUtil->getWritablePath() + "PLAYER_FILE.magu");
 }

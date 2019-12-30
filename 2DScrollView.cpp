@@ -143,7 +143,8 @@ void C_2DScrollView::createItem(Sprite* pSprite, const int& nType)
 	if (m_arItemCount[nType] > 0)
 	{
 		pSprite->setPosition(m_arItemList[nType][m_arItemCount[nType] - 1]->getPosition());
-		pSprite->addPosition(0.0f, pSprite->getContentSize().height - 5.0f);
+		pSprite->addPosition(0.0f, pSprite->getContentSize().height);
+		pSprite->addPosition(0.0f, -5.0f);
 	}
 
 	m_arItemList[nType].emplace_back(pSprite);
@@ -213,6 +214,7 @@ bool C_2DScrollView::init()
 	m_isNowUpdated		= false;
 	m_isEnabled			= false;
 	m_fDelaytime		= 0.0f;
+	m_fUpdateYpos		= -720.0f;
 	m_eCloudType		= E_CLOUD_TYPE::E_NORMAL;
 	m_eCameraFlag		= CameraFlag::USER1;
 
@@ -275,7 +277,7 @@ void C_2DScrollView::update(float dt)
 	{
 		pSprite = pVector->at(nCount);
 
-		if (pSprite->getPosition3D().y <= -(pSprite->getContentSize().height / 2.0f))
+		if (pSprite->getPosition3D().y <= m_fUpdateYpos)
 		{
 			pSprite->setPosition3D(m_arUpdatepos[static_cast<int>(E_SCROLL::E_BG)]);
 		}
@@ -289,7 +291,7 @@ void C_2DScrollView::update(float dt)
 	{
 		pSprite = pVector->at(nCount);
 
-		if (pSprite->getPosition3D().y <= -(pSprite->getContentSize().height / 2.0f))
+		if (pSprite->getPosition3D().y <= m_fUpdateYpos)
 		{
 			if (m_eCloudType == E_CLOUD_TYPE::E_RANDOM)
 			{

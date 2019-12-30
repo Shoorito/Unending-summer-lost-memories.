@@ -20,6 +20,8 @@ public:
 	// @param "strEncrypt"	= "encrypt Text"
 	static void encryptText(std::string& strTarget, const std::string& strEncrypt);
 
+	static void convertToString(const int nTarget, std::string& strResult);
+
 	static int getDigits(const int nNumber);
 
 	static int getCommaPosition(const int nNumber);
