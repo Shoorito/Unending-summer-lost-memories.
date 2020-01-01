@@ -10,6 +10,8 @@ static const int g_nDifficultyNum		 = 3;
 static const float g_fWinSizeX = 1280.0f;
 static const float g_fWinSizeY = 720.0f;
 
+static const Vec4 g_vecPlayerMovement = Vec4(290.0f, 990.0f, 695.0f, 25.0f);
+
 static const Color4B g_arOutlineColor[g_nDifficultyNum]
 {
 	Color4B::GREEN,

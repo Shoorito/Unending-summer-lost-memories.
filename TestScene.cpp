@@ -5,6 +5,7 @@
 #include "PlayerState.h"
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
+#include "PlayerController.h"
 #include "KeyEventManager.h"
 
 USING_NS_CC;
@@ -56,12 +57,23 @@ void C_TestScene::preset()
 	
 	m_pPlayerState = C_PlayerState::create();
 
+	testKeyEvent();
 	testScroll();
+	testController();
 
 	m_pUI = C_PlayerUI::create();
 
+	addChild(m_pKeyManager);
 	addChild(m_pScrollView);
+	addChild(m_pPlayerController);
 	addChild(m_pUI);
+}
+
+void C_TestScene::testKeyEvent()
+{
+	m_pKeyManager = C_KeyEvent_Manager::create();
+
+	m_pKeyManager->setEnabled(true);
 }
 
 void C_TestScene::testScroll()
@@ -75,4 +87,14 @@ void C_TestScene::testScroll()
 	m_pScrollView->setSpeed(1.0f, E_SCROLL::E_BG);
 	m_pScrollView->setSpeed(1.0f, E_SCROLL::E_CLOUD);
 	m_pScrollView->setCloudSpawnType(E_CLOUD_TYPE::E_NORMAL);
+}
+
+void C_TestScene::testController()
+{
+	m_pPlayerController = C_PlayerController::create();
+	
+	m_pPlayerController->setTexture("Player.png");
+	m_pPlayerController->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
+	m_pPlayerController->setPosition(640.0f, 360.0f);
+	m_pPlayerController->setEnabled(true);
 }

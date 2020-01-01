@@ -13,12 +13,16 @@ public:
 private:
     bool init() override;
 	void preset();
+	void testKeyEvent();
 	void testScroll();
+	void testController();
 private:
-	class C_2DScrollView* m_pScrollView;
-	class C_ProgressBar*  m_pProgress;
-	class C_PlayerState*  m_pPlayerState;
-	class C_PlayerUI*	  m_pUI;
+	class C_2DScrollView*		m_pScrollView;
+	class C_ProgressBar*		m_pProgress;
+	class C_PlayerState*		m_pPlayerState;
+	class C_PlayerController*	m_pPlayerController;
+	class C_PlayerUI*			m_pUI;
+	class C_KeyEvent_Manager*	m_pKeyManager;
 private:
 	Sprite* m_pTarget;
 private:
