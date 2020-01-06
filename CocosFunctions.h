@@ -33,6 +33,7 @@ public:
 	static void updateScoreLength(int nAdder, int nSize, int& nCommaCount, std::string& strTarget);
 
 	static const int convertToInt(const std::string& strTarget);
+
 private:
 	C_Functions()  {}
 	~C_Functions() {}
