@@ -2,6 +2,8 @@
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
 #include "PlayScene.h"
+#include "EnemyManager.h"
+#include "Enemy.h"
 
 C_PlayerWeapon * C_PlayerWeapon::create()
 {
@@ -76,9 +78,29 @@ void C_PlayerWeapon::preset()
 	pause();
 }
 
+void C_PlayerWeapon::homing(C_Enemy* pEnemy)
+{
+	float fShotAngle(0.0f);
+	float fRotation(0.0f);
+
+	fShotAngle	= atan2f(getPositionY() - pEnemy->getPositionY(), pEnemy->getPositionX() - getPositionX());
+	fRotation	= fShotAngle * 180.0f / 3.141592f;
+
+	setRotation(fRotation + 90.0f);
+	addPositionX(cosf(-fShotAngle) * m_fSpeed);
+	addPositionY(sinf(-fShotAngle) * m_fSpeed);
+}
+
 void C_PlayerWeapon::updateBySubWeapon()
 {
-	addPositionY(m_fSpeed);
+	C_Enemy* pHomingTarget(nullptr);
+
+	pHomingTarget = C_EnemyManager::getInstance()->getImmediateEnemy(getPosition());
+
+	if (!pHomingTarget)
+		addPositionY(m_fSpeed);
+	else
+		homing(pHomingTarget);
 }
 
 void C_PlayerWeapon::updateByWeapon()

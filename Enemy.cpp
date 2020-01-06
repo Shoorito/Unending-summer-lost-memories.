@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "CocosFunctions.h"
+#include "EnemyManager.h"
 
 C_Enemy * C_Enemy::create()
 {
@@ -100,10 +101,15 @@ Repeat * C_Enemy::getAnimation(const int nPosition)
 
 void C_Enemy::setHP(const float fHP)
 {
-	if (fHP < 0.0f)
+	if (fHP <= 0.0f)
+	{
 		m_fHP = 0.0f;
 
-	m_fHP = 0.0f;
+		setEnabled(false);
+		C_EnemyManager::getInstance()->changeEnemy(this, E_USE_TYPE::E_NOT_USED);
+	}
+
+	m_fHP = fHP;
 }
 
 void C_Enemy::setAttackType(const int nType)

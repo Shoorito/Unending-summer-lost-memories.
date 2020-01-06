@@ -28,6 +28,8 @@ private:
 	const bool onIntersectsEnemy();
 	const bool onIntersectsBorder();
 private:
+	void homing(C_Enemy* pEnemy);
+private:
 	void update(float fDelay);
 private:
 	void(C_PlayerWeapon::*m_arUpdater[2])();

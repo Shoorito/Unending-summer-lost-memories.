@@ -44,13 +44,13 @@ public:
 	void addAnimationWithFiles(const std::vector<std::string>& vecFiles, const float fDelay);
 	void addAnimationWithAtlas(const std::string& strFile, const Rect& recSize, const int nCount, const float fDelay);
 public:
-	void setHP(const float fHP);
+	virtual void setHP(const float fHP);
 	void setAttackType(const int nType);
-	void setEnabled(const bool isEnabled);
+	virtual void setEnabled(const bool isEnabled);
 public:
 	void startAnimation(const int nType);
 public:
-	void setTextureWithRect(const std::string& strFile, const Rect& recSprite);
+	virtual void setTextureWithRect(const std::string& strFile, const Rect& recSprite);
 private:
 	bool init() override;
 	void preset();
