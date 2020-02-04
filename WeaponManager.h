@@ -43,6 +43,9 @@ public:
 public:
 	void addWeapon(const E_WEAPON_TYPE& eType);
 	void removeWeapon(const E_WEAPON_TYPE& eType);
+public:
+	void allPause();
+	void allResume();
 private:
 	bool init() override;
 	void preset();

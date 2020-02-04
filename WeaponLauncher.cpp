@@ -29,6 +29,22 @@ C_WeaponLauncher * C_WeaponLauncher::create(const std::string& strFile)
 	return m_pInstance;
 }
 
+void C_WeaponLauncher::allPause()
+{
+	for (int nLauncher(0); nLauncher < m_nLauncherCount; nLauncher++)
+	{
+		m_vecLaunchers[nLauncher]->pause();
+	}
+}
+
+void C_WeaponLauncher::allResume()
+{
+	for (int nLauncher(0); nLauncher < m_nLauncherCount; nLauncher++)
+	{
+		m_vecLaunchers[nLauncher]->resume();
+	}
+}
+
 Sprite* C_WeaponLauncher::getLauncher(const int nPosition)
 {
 	if (nPosition < 0 || nPosition >= static_cast<int>(m_vecLaunchers.size()))
@@ -97,11 +113,11 @@ void C_WeaponLauncher::setWeaponCount(const int nCount)
 		else
 			m_vecLaunchers[nDisable]->pause();
 
-		m_nLauncherCount++;
-
 		nDisable += arAdder[isAdd];
 	}
 	
+	m_nLauncherCount = nCount;
+
 	updateLauncher();
 }
 

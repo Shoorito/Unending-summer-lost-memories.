@@ -76,6 +76,8 @@ public:
 	void setGaugeConfig(const std::string& strFile, const E_UI_GAUGE& eType);
 public:
 	void setScoreFontFile(const std::string& strFontFile, const E_UI_TITLE& eType);
+public:
+	void setEnabled(const bool isEnabled);
 private:
 	bool init() override;
 private:
@@ -87,9 +89,9 @@ private:
 	void createGauges();
 	void createLabel();
 private:
-	void update(float fDelay);
+	void update(float fDelay) override;
 	void updateScore();
-	void updateGauges();
+	void updatePlayerStatus();
 private:
 	Sprite*			m_arUIItem[static_cast<int>(E_UI_IMG::E_MAX)]{};
 	C_ProgressBar*	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MAX)]{};
@@ -102,6 +104,8 @@ private:
 	int m_nDefaultFontSize;
 private:
 	std::string m_strUIScore;
+private:
+	bool m_isEnabled;
 private:
 	static C_PlayerUI* m_pInstance;
 private:

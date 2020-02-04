@@ -1,7 +1,8 @@
 #include "PlayerState.h"
 #include "PlayerUI.h"
-#include "CocosFunctions.h"
 #include "ResourceTable.h"
+#include "CocosFunctions.h"
+#include "WeaponLauncher.h"
 
 C_PlayerState* C_PlayerState::m_pInstance = nullptr;
 
@@ -22,110 +23,225 @@ C_PlayerState * C_PlayerState::create()
 	return m_pInstance;
 }
 
-void C_PlayerState::setMaxHP(const int fHP)
+void C_PlayerState::setMaxHP(const int nHP)
 {
-	if (fHP < 0.0f || fHP > 0xffffffff - 1)
+	if (nHP < 0 || static_cast<unsigned int>(nHP) > m_nMaxScore)
 		return;
 
-	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)] = fHP;
+	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)] = nHP;
 }
 
-void C_PlayerState::setMaxMP(const int fMP)
+void C_PlayerState::setMaxMP(const int nMP)
 {
-	if (fMP < 0.0f || fMP > g_nScoreLimit)
+	if (nMP < 0 || static_cast<unsigned int>(nMP) > m_nMaxScore)
 		return;
 
-	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)] = fMP;
+	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)] = nMP;
 }
 
-void C_PlayerState::setMaxEXP(const int fEXP)
+void C_PlayerState::setMaxEXP(const int nEXP)
 {
-	if (fEXP < 0.0f || fEXP > g_nScoreLimit)
+	if (nEXP < 0 || static_cast<unsigned int>(nEXP) > m_nMaxScore)
 		return;
 
-	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)] = fEXP;
+	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)] = nEXP;
 }
 
-void C_PlayerState::setHP(const int fHP)
+void C_PlayerState::setAttack(const int nPower)
 {
-	if (fHP < 0.0f || fHP > g_nScoreLimit)
+	if (nPower < 0)
 		return;
 
-	m_nPlayerHP = fHP;
+	if (static_cast<unsigned int>(nPower) > m_nMaxScore)
+	{
+		m_nPlayerAttack = m_nMaxScore;
+
+		return;
+	}
+
+	m_nPlayerAttack = nPower;
 }
 
-void C_PlayerState::setMP(const int fMP)
+void C_PlayerState::setHP(const int nHP)
 {
-	if (fMP < 0.0f || fMP > g_nScoreLimit)
+	if (nHP < 0)
 		return;
 
-	m_nPlayerMP = fMP;
+	if (nHP > m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)])
+	{
+		m_nPlayerHP = m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)];
+
+		return;
+	}
+
+	m_nPlayerHP = nHP;
 }
 
-void C_PlayerState::setEXP(const int fEXP)
+void C_PlayerState::setMP(const int nMP)
 {
-	if (fEXP < 0.0f || fEXP > g_nScoreLimit)
+	if (nMP < 0)
 		return;
 
-	m_nPlayerEXP = fEXP;
+	if (nMP > m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)])
+	{
+		m_nPlayerMP = m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)];
+
+		return;
+	}
+
+	m_nPlayerMP = nMP;
+}
+
+void C_PlayerState::setEXP(const int nEXP)
+{
+	if (nEXP < 0 || m_nLevel >= C_WeaponLauncher::getInstance()->getMaxLauncherCount())
+		return;
+
+	m_nPlayerEXP = nEXP;
+
+	while (m_nPlayerEXP >= m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)])
+	{
+		addLevel(1);
+
+		m_nPlayerEXP -= m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)];
+	}
 }
 
 void C_PlayerState::setScore(const int nScore)
 {
-	if (nScore < 0 || m_nScore == g_nScoreLimit)
+	if (m_nScore == m_nMaxScore)
 		return;
 
-	if ((m_nScore + nScore > g_nScoreLimit) || (m_nScore + nScore < 0))
-		m_nScore = g_nScoreLimit;
+	if (static_cast<unsigned int>(nScore) > m_nMaxScore)
+	{
+		m_nScore = m_nMaxScore;
+	}
 	else
+	{
 		m_nScore = nScore;
+	}
+}
 
-	setHighScore(m_nScore);
+void C_PlayerState::setLevel(const int nLevel)
+{
+	if (nLevel < 1)
+	{
+		m_nLevel = 1;
+
+		C_WeaponLauncher::getInstance()->setWeaponCount(m_nLevel);
+
+		return;
+	}
+
+	if (nLevel > C_WeaponLauncher::getInstance()->getMaxLauncherCount())
+	{
+		m_nLevel = C_WeaponLauncher::getInstance()->getMaxLauncherCount();
+	}
+	else
+	{
+		m_nLevel = nLevel;
+	}
+
+	C_WeaponLauncher::getInstance()->setWeaponCount(m_nLevel);
 }
 
 void C_PlayerState::setHighScore(const int nScore)
 {
-	if (nScore < 0 || nScore < m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)])
+	if (nScore < m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)])
 		return;
 
 	m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)] = nScore;
 }
 
-void C_PlayerState::addHP(const int fAdder)
+void C_PlayerState::addHP(const int nAdder)
 {
-	if (m_nPlayerHP + fAdder < 0.0f || m_nPlayerHP + fAdder > g_nScoreLimit)
-		return;
+	if (m_nPlayerHP + nAdder >= m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)])
+	{
+		m_nPlayerHP = m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)];
 
-	m_nPlayerHP += fAdder;
+		return;
+	}
+
+	m_nPlayerHP += nAdder;
 }
 
-void C_PlayerState::addMP(const int fAdder)
+void C_PlayerState::addMP(const int nAdder)
 {
-	if (m_nPlayerMP + fAdder < 0.0f || m_nPlayerMP + fAdder > g_nScoreLimit)
-		return;
+	if (m_nPlayerMP + nAdder > m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)])
+	{
+		m_nPlayerMP = m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)];
 
-	m_nPlayerMP += fAdder;
+		return;
+	}
+
+	m_nPlayerMP += nAdder;
 }
 
-void C_PlayerState::addEXP(const int fAdder)
+void C_PlayerState::addAttack(const int nPower)
 {
-	if (m_nPlayerEXP + fAdder < 0.0f || m_nPlayerEXP + fAdder > g_nScoreLimit)
+	if (m_nPlayerAttack == m_nMaxScore)
 		return;
 
-	m_nPlayerEXP += fAdder;
+	if (static_cast<unsigned int>(m_nPlayerAttack + nPower) > m_nMaxScore)
+	{
+		m_nPlayerAttack = m_nMaxScore;
+
+		return;
+	}
+		
+	m_nPlayerAttack += nPower;
+}
+
+void C_PlayerState::addEXP(const int nAdder)
+{
+	if (nAdder < 1)
+		return;
+
+	m_nPlayerEXP += nAdder;
+
+	while (m_nPlayerEXP >= m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)])
+	{
+		addLevel(1);
+
+		m_nPlayerEXP -= m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)];
+	}
 }
 
 void C_PlayerState::addScore(const int nScore)
 {
-	if (m_nScore + nScore < 0 || m_nScore == g_nScoreLimit)
+	if (m_nScore == m_nMaxScore)
 		return;
 
-	if (m_nScore + nScore > g_nScoreLimit || m_nScore + nScore < 0)
-		m_nScore = g_nScoreLimit;
-	else
-		m_nScore += nScore;
+	if (static_cast<unsigned int>(m_nScore + nScore) > m_nMaxScore)
+	{
+		m_nScore = m_nMaxScore;
 
-	setHighScore(m_nScore);
+		return;
+	}
+	
+	m_nScore += nScore;
+}
+
+void C_PlayerState::addLevel(const int nLevel)
+{
+	if (m_nLevel == C_WeaponLauncher::getInstance()->getMaxLauncherCount())
+		return;
+
+	if (m_nLevel + nLevel > C_WeaponLauncher::getInstance()->getMaxLauncherCount())
+	{
+		m_nLevel = C_WeaponLauncher::getInstance()->getMaxLauncherCount();
+	}
+	else
+	{
+		m_nLevel += nLevel;
+	}
+
+	C_WeaponLauncher::getInstance()->setWeaponCount(m_nLevel);
+}
+
+void C_PlayerState::addValueByTag(const int nAdd, const int nTag)
+{
+	(this->*m_arAddFuncs[nTag])(nAdd);
 }
 
 void C_PlayerState::init()
@@ -134,6 +250,21 @@ void C_PlayerState::init()
 	m_nPlayerHP		= 0;
 	m_nPlayerMP		= 0;
 	m_nScore		= 0;
+	m_nLevel		= 1;
+	m_nPlayerAttack = 0;
+	m_nMaxScore		= 0x7fffffff;
+	m_strEncryptKey = u8"델루나의사장장만월은구찬성을사랑한다.";
+
+	m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)]		= "INIT_HP";
+	m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)]		= "INIT_MP";
+	m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)]	= "INIT_EXP";
+	m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)] = "INIT_HIGHSCORE";
+	m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_ATTACK)]		= "INIT_ATTACK";
+
+	m_arAddFuncs[static_cast<int>(E_GAIN_STAT::E_HP)]	 = &C_PlayerState::addHP;
+	m_arAddFuncs[static_cast<int>(E_GAIN_STAT::E_MP)]	 = &C_PlayerState::addMP;
+	m_arAddFuncs[static_cast<int>(E_GAIN_STAT::E_EXP)]	 = &C_PlayerState::addEXP;
+	m_arAddFuncs[static_cast<int>(E_GAIN_STAT::E_SCORE)] = &C_PlayerState::addScore;
 }
 
 void C_PlayerState::setup()
@@ -148,13 +279,15 @@ void C_PlayerState::setup()
 	}
 	else
 	{
-		m_nPlayerHP	= 50;
-		m_nPlayerMP	= 10;
+		m_nPlayerHP		= 100;
+		m_nPlayerMP		= 10;
+		m_nPlayerAttack = 10;
 
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_HP)]		= m_nPlayerHP;
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_MP)]		= m_nPlayerMP;
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX_EXP)]	= 100;
 		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)] = 100000;
+		m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_ATTACK)]		= m_nPlayerAttack;
 
 		savePlayerStatus();
 	}
@@ -169,7 +302,7 @@ void C_PlayerState::loadPlayerStatus()
 	
 	strData = pUtil->getStringFromFile(pUtil->getWritablePath() + "PLAYER_FILE.magu");
 
-	C_Functions::encryptText(strData, g_strEncryptKey01);
+	C_Functions::encryptText(strData, m_strEncryptKey);
 
 	readFile(strData);
 }
@@ -183,7 +316,7 @@ void C_PlayerState::readFile(const std::string & strInfo)
 
 	nSize = strInfo.size();
 
-	while(nCursor != nSize && g_nStatusNum != nStatusNum)
+	while((nCursor != nSize) && (static_cast<int>(E_PLAYER_STATUS::E_MAX) != nStatusNum))
 	{
 		if (strInfo[nCursor] == '=')
 		{
@@ -221,15 +354,15 @@ void C_PlayerState::savePlayerStatus()
 	strSaveInfo += "<PLAYER_SHEET>\n";
 	strSaveInfo += '\n';
 
-	for (int nItem(0); nItem < g_nStatusNum; nItem++)
+	for (int nItem(0); nItem < static_cast<int>(E_PLAYER_STATUS::E_MAX); nItem++)
 	{
-		strSaveInfo += g_arSaveStatus[nItem];
+		strSaveInfo += m_arSaveStatusName[nItem];
 		strSaveInfo += " = ";
 		strSaveInfo += std::to_string(m_arSaveStatus[nItem]);
 		strSaveInfo += "\r\n";
 	}
 
-	C_Functions::encryptText(strSaveInfo, g_strEncryptKey01);
+	C_Functions::encryptText(strSaveInfo, m_strEncryptKey);
 
 	pUtil->writeStringToFile(strSaveInfo, pUtil->getWritablePath() + "PLAYER_FILE.magu");
 }

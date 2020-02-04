@@ -81,6 +81,21 @@ void C_PlayerUI::setScoreFontFile(const std::string & strFontFile, const E_UI_TI
 	m_arUITitle[static_cast<int>(eType)]->initWithTTF(strFontFile, "", m_nDefaultFontSize);
 }
 
+void C_PlayerUI::setEnabled(const bool isEnabled)
+{
+	if (m_isEnabled == isEnabled)
+		return;
+
+	m_isEnabled = isEnabled;
+
+	setVisible(m_isEnabled);
+
+	if (m_isEnabled)
+		resume();
+	else
+		pause();
+}
+
 bool C_PlayerUI::init()
 {
 	if (!Node::init())
@@ -90,8 +105,8 @@ bool C_PlayerUI::init()
 	m_nNowUsedComma		= 0;
 	m_nUIDifficulty		= 0;
 	m_nDefaultFontSize  = 20;
-	m_strUIScore		= "";
-
+	m_strUIScore		= "0";
+	m_isEnabled			= false;
 
 	return true;
 }
@@ -105,6 +120,11 @@ void C_PlayerUI::preset()
 	presetByItems();
 	presetByGauge();
 	presetByLabel();
+
+	schedule(schedule_selector(C_PlayerUI::update), 0.05f);
+
+	pause();
+	setVisible(false);
 }
 
 void C_PlayerUI::presetByGauge()
@@ -130,10 +150,16 @@ void C_PlayerUI::presetByGauge()
 
 void C_PlayerUI::presetByItems()
 {
+	float fXpos(0.0f);
+	float fYpos(0.0f);
+
+	fXpos = Director::getInstance()->getWinSize().width  / 2.0f;
+	fYpos = Director::getInstance()->getWinSize().height / 2.0f;
+
 	m_arUIItem[static_cast<int>(E_UI_IMG::E_BG)]->setTexture("UI_BG.png");
 	m_arUIItem[static_cast<int>(E_UI_IMG::E_LOGO)]->setTexture("UI_Logo.png");
 
-	m_arUIItem[static_cast<int>(E_UI_IMG::E_BG)]->setPosition(g_fWinSizeX / 2.0f, g_fWinSizeY / 2.0f);
+	m_arUIItem[static_cast<int>(E_UI_IMG::E_BG)]->setPosition(fXpos, fYpos);
 	m_arUIItem[static_cast<int>(E_UI_IMG::E_LOGO)]->setPosition(1135.0f, 200.0f);
 }
 
@@ -207,6 +233,11 @@ void C_PlayerUI::createGauges()
 		strGaugeTag.pop_back();
 		addChild(m_arUIGauge[nGauge]);
 	}
+
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_HP)]->setGaugeMaxCost(C_PlayerState::getInstance()->getHP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MP)]->setGaugeMaxCost(C_PlayerState::getInstance()->getMP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeMaxCost(C_PlayerState::getInstance()->getMaxEXP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeCost(0);
 }
 
 void C_PlayerUI::createLabel()
@@ -228,6 +259,8 @@ void C_PlayerUI::createLabel()
 
 void C_PlayerUI::update(float fDelay)
 {
+	updateScore();
+	updatePlayerStatus();
 }
 
 void C_PlayerUI::updateScore()
@@ -236,65 +269,31 @@ void C_PlayerUI::updateScore()
 
 	if (nCount)
 	{
-		int nSize(0);
 		int nSqrt(0);
-		int nAdder(0);
 
-		nSize = (int)m_strUIScore.size();
 		nSqrt = C_Functions::getDigits(nCount);
-		nAdder = C_Functions::getCommaPosition(nSqrt) + nSqrt;
-
-		if (nSize < nAdder)
-		{
-			C_Functions::updateScoreLength(nAdder, nSize, m_nNowUsedComma, m_strUIScore);
-		}
-		else
-		{
-			bool isAdded(false);
-
-			for (int nCheck(nSize - nAdder); nCheck == (nSize - nAdder); nCheck--)
-			{
-				if (C_Functions::isComma(nCheck, m_strUIScore))
-				{
-					nAdder++;
-				}
-				else if (m_strUIScore[nCheck] == ('9' + isAdded))
-				{
-					m_strUIScore[nCheck] = '0';
-
-					if (!nCheck)
-					{
-						nCheck = 999999;
-
-						C_Functions::updateScoreLength(nSqrt + 1, nSize, m_nNowUsedComma, m_strUIScore);
-					}
-					else
-					{
-						m_strUIScore[nCheck - 1 - C_Functions::isComma(nCheck - 1, m_strUIScore)] += 1;
-						isAdded = true;
-					}
-
-					nAdder++;
-				}
-				else if (!isAdded)
-				{
-					m_strUIScore[nCheck] += 1;
-				}
-			}
-		}
 
 		m_nUIScore += pow(10, nSqrt - 1);
+
+		C_Functions::convertToString(m_nUIScore, m_strUIScore);
 
 		if (m_nUIScore > C_PlayerState::getInstance()->getHighScore())
 		{
 			C_PlayerState::getInstance()->setHighScore(m_nUIScore);
-			m_arUITitle[static_cast<int>(E_UI_TITLE::E_HIGHSCORE)]->setString(m_strUIScore);
+			m_arUIScore[static_cast<int>(E_UI_SCORE::E_HIGHSCORE)]->setString(m_strUIScore);
 		}
 
-		m_arUITitle[static_cast<int>(E_UI_TITLE::E_SCORE)]->setString(m_strUIScore);
+		m_arUIScore[static_cast<int>(E_UI_SCORE::E_SCORE)]->setString(m_strUIScore);
 	}
 }
 
-void C_PlayerUI::updateGauges()
+void C_PlayerUI::updatePlayerStatus()
 {
+	C_PlayerState* pStatus(nullptr);
+
+	pStatus = C_PlayerState::getInstance();
+
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_HP)]->setGaugeCost(pStatus->getHP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_MP)]->setGaugeCost(pStatus->getMP());
+	m_arUIGauge[static_cast<int>(E_UI_GAUGE::E_EXP)]->setGaugeCost(pStatus->getEXP());
 }

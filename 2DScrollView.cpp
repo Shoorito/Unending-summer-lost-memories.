@@ -1,5 +1,4 @@
 #include "2DScrollView.h"
-#include "TestScene.h"
 #include "CocosFunctions.h"
 
 C_2DScrollView* C_2DScrollView::m_pInstance = nullptr;

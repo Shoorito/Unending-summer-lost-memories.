@@ -3,6 +3,8 @@
 
 USING_NS_CC;
 
+static const Vec4 g_vecPlayerMovement{ 290.0f, 990.0f, 695.0f, 25.0f };
+
 enum class E_MOVEMENT
 {
 	E_LEFT,

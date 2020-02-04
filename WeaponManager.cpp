@@ -108,6 +108,34 @@ void C_WeaponManager::removeWeapon(const E_WEAPON_TYPE & eType)
 	removeChild(pWeapon);
 }
 
+void C_WeaponManager::allPause()
+{
+	for (int nType(0); nType < static_cast<int>(E_WEAPON_TYPE::E_MAX); nType++)
+	{
+		for (int nWeapon(0); nWeapon < static_cast<int>(m_vecWeapon[nType].size()); nWeapon++)
+		{
+			if (m_vecWeapon[nType][nWeapon]->isEnabled())
+			{
+				m_vecWeapon[nType][nWeapon]->pause();
+			}
+		}
+	}
+}
+
+void C_WeaponManager::allResume()
+{
+	for (int nType(0); nType < static_cast<int>(E_WEAPON_TYPE::E_MAX); nType++)
+	{
+		for (int nWeapon(0); nWeapon < static_cast<int>(m_vecWeapon[nType].size()); nWeapon++)
+		{
+			if (m_vecWeapon[nType][nWeapon]->isEnabled())
+			{
+				m_vecWeapon[nType][nWeapon]->resume();
+			}
+		}
+	}
+}
+
 bool C_WeaponManager::init()
 {
 	if (!Node::init())

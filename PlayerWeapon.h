@@ -4,6 +4,10 @@
 
 using namespace cocos2d;
 
+class C_Enemy;
+
+static const float g_fDefaultShotSpeed = 15.0f;
+
 class C_PlayerWeapon : public Sprite
 {
 public:

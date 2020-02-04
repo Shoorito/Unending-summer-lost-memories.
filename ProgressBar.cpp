@@ -516,7 +516,7 @@ void C_ProgressBar::setUseGaugeCount(const int nUseProgressCount)
 		pNode->fAllotment = fAllotment;
 		pNode->fWidth	  = pBG->getContentSize().width * (pNode->fAllotment / 100.0f);
 		
-		pSprite->setContentXSize(pNode->fWidth * (pNode->fCost / pNode->fMaxCost));
+		pSprite->setContentXSize(pNode->fWidth);
 		pSprite->setPosition(pBG->getPosition());
 		pSprite->setVisible(true);
 		pSprite->addPositionX(-pBG->getContentSize().width / 2.0f);
@@ -528,7 +528,7 @@ void C_ProgressBar::setUseGaugeCount(const int nUseProgressCount)
 
 void C_ProgressBar::setGaugeMaxCost(const float fCost, const int nPosition)
 {
-	if (fCost < 1.0f || nPosition > static_cast<int>(m_vecGaugeNode.size()) || nPosition < 0)
+	if (fCost < 1.0f || nPosition >= static_cast<int>(m_vecGaugeNode.size()) || nPosition < 0)
 		return;
 
 	if (m_vecGaugeMeter[nPosition]->fCost == 0.0f)
@@ -677,4 +677,33 @@ void C_ProgressBar::setPosition(const float fXpos, const float fYpos)
 	m_pBorder->pProgressNode->setPosition(fXpos, fYpos);
 	
 	sortGauges();
+}
+
+void C_ProgressBar::fadeInAction(const float fDuration)
+{
+	int nNodes(0);
+	FadeIn* pAction(nullptr);
+	ui::Scale9Sprite* pBackground(nullptr);
+	ui::Scale9Sprite* pBorder(nullptr);
+
+	nNodes		= static_cast<int>(m_vecGaugeNode.size());
+	pAction		= FadeIn::create(fDuration);
+	pBackground = static_cast<ui::Scale9Sprite*>(m_pBackground->pProgressNode);
+
+	setVisible(true);
+
+	pBackground->setOpacity(0);
+	pBackground->setVisible(true);
+	pBackground->runAction(pAction->clone());
+
+	for (int nActNode(0); nActNode < nNodes; nActNode++)
+	{
+		ui::Scale9Sprite* pGauge(nullptr);
+
+		pGauge = static_cast<ui::Scale9Sprite*>(m_vecGaugeNode[nActNode]->pProgressNode);
+
+		pGauge->setOpacity(0);
+		pGauge->setVisible(true);
+		pGauge->runAction(pAction->clone());
+	}
 }

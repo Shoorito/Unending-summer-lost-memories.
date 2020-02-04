@@ -67,7 +67,11 @@ public:
 	// 인수로 지정한 위치에 해당하는 "GAUGE_NODE"를 반환하며, 기본 좌표는 "0"입니다.
 	// @return "m_vecGauge[nPosition]" = "GAUGE_NODE"
 	S_PNode* getGauge(const int nPosition) const;
-
+public:
+	inline const Vec2& getContentSize()
+	{
+		return m_pBackground->pProgressNode->getContentSize();
+	}
 public:
 	// INFO! "PROGRESS_BAR"의 [nPosition]번째 "GAUGE"의 수치 최대치를 반환합니다.
 	// @param  "nPosition"	= "GAUGE_NUMBER"
@@ -202,7 +206,8 @@ public:
 	// @param "fXpos" = "X_AXIS"
 	// @param "fYpos" = "Y_AXIS"
 	void setPosition(const float fXpos, const float fYpos) override;
-
+public:
+	void fadeInAction(const float fDuration);
 private:
 	// INFO! Initialize Override Function.
 	bool init() override;

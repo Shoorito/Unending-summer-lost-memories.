@@ -3,6 +3,8 @@
 
 using namespace cocos2d;
 
+class C_Enemy;
+
 class C_Functions
 {
 public:
@@ -20,7 +22,9 @@ public:
 	// @param "strEncrypt"	= "encrypt Text"
 	static void encryptText(std::string& strTarget, const std::string& strEncrypt);
 
-	static void convertToString(const int nTarget, std::string& strResult);
+	static void convertToString(const int& nTarget, std::string& strResult);
+	
+	static const std::string convertToString(const int& nTarget);
 
 	static int getDigits(const int nNumber);
 
@@ -33,6 +37,12 @@ public:
 	static void updateScoreLength(int nAdder, int nSize, int& nCommaCount, std::string& strTarget);
 
 	static const int convertToInt(const std::string& strTarget);
+
+	static void swap(void* pSrc, void* pDst);
+
+	static const float getHomingAngle(const Vec2& vecStartpos, const Vec2& vecEndpos);
+
+	static void dropItem(C_Enemy * pTarget);
 
 private:
 	C_Functions()  {}

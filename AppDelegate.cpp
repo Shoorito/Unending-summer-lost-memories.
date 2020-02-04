@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "TestScene.h"
+#include "PlayScene.h"
 
 AppDelegate::AppDelegate()
 	: m_recWinSize(Rect::ZERO), m_strTitle()
@@ -68,7 +68,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     register_all_packages();
 
     // create a scene. it's an autorelease object
-    pMainScene = C_TestScene::create();
+    pMainScene = C_PlayScene::create();
 
     // run
     pDirector->runWithScene(pMainScene);

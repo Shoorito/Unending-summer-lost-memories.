@@ -1,16 +1,34 @@
 #pragma once
 #include <string>
+#include "EnumList.h"
 
-static const int g_nScoreLimit			 = 2111111111;
-static const int g_nStatusNum			 = 4;
-static const int g_nCheckSkipNum		 = 4;
-static const int g_nDifficultyNum		 = 3;
+static const int g_nGaugeColors		= 3;
+static const int g_nDifficultyNum	= 3;
+static const int g_nCheckSkipNum	= 4;
 
+static const Rect g_recWinArea { 290.0f, 25.0f, 700.0f, 671.0f };
 
-static const float g_fWinSizeX = 1280.0f;
-static const float g_fWinSizeY = 720.0f;
+static const int g_arDanmakuXSize[static_cast<int>(E_DANMAKU::E_MAX)]
+{
+	56, 63
+};
 
-static const Vec4 g_vecPlayerMovement = Vec4(290.0f, 990.0f, 695.0f, 25.0f);
+static const int g_arDanmakuYSize[static_cast<int>(E_DANMAKU::E_MAX)]
+{
+	56, 67
+};
+
+static const int g_arBonusScore[4]
+{
+	1250000, 1500000, 2750000, 3750000
+};
+
+static const Color3B g_arGaugeColor[g_nGaugeColors]
+{
+	Color3B(226, 30, 63),
+	Color3B(244,116, 61),
+	Color3B::WHITE
+};
 
 static const Color4B g_arOutlineColor[g_nDifficultyNum]
 {
@@ -19,23 +37,14 @@ static const Color4B g_arOutlineColor[g_nDifficultyNum]
 	Color4B::RED
 };
 
-static std::string g_strUpperByScore[3]
-{
-	"1,000",
-	"1,000,000",
-	"1,000,000,000"
-};
-
-static int g_arScoreUpper[3]
-{
-	999,
-	999999,
-	999999999
-};
-
 static int g_arInitScore[4]
 {
-	4, 8, 12, 99
+	4, 7, 10, 99
+};
+
+static int g_arTimerCounts[7]
+{
+	30, 40, 40, 50, 40, 50, 58
 };
 
 static char g_arCheckSkipText[g_nCheckSkipNum]
@@ -46,12 +55,4 @@ static char g_arCheckSkipText[g_nCheckSkipNum]
 static std::string g_arDifficulty[g_nDifficultyNum]
 {
 	"EASY", "NORMAL", "HARD"
-};
-
-static std::string g_arSaveStatus[g_nStatusNum]
-{
-	"INIT_HP",
-	"INIT_MP",
-	"INIT_EXP",
-	"INIT_HIGHSCORE"
 };

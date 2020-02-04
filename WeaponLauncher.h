@@ -19,6 +19,9 @@ public:
 		return m_nLauncherMaxCount;
 	}
 public:
+	void allPause();
+	void allResume();
+public:
 	Sprite* getLauncher(const int nPosition);
 public:
 	void setUseTexture(const std::string& strFile);

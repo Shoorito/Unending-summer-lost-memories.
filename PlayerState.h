@@ -9,6 +9,16 @@ enum class E_PLAYER_STATUS
 	E_MAX_MP,
 	E_MAX_EXP,
 	E_HIGH_SCORE,
+	E_ATTACK,
+	E_MAX
+};
+
+enum class E_GAIN_STAT
+{
+	E_HP,
+	E_MP,
+	E_EXP,
+	E_SCORE,
 	E_MAX
 };
 
@@ -25,13 +35,19 @@ public:
 	void setHP		 (const int nHP);
 	void setMP		 (const int nMP);
 	void setEXP		 (const int nEXP);
+	void setAttack	 (const int nPower);
 	void setScore	 (const int nScore);
+	void setLevel	 (const int nLevel);
 	void setHighScore(const int nScore);
 public:
 	void addHP		 (const int nAdder);
 	void addMP		 (const int nAdder);
+	void addAttack	 (const int nPower);
 	void addEXP		 (const int nAdder);
 	void addScore	 (const int nAdder);
+	void addLevel	 (const int nLevel);
+public:
+	void addValueByTag(const int nAdd, const int nTag);
 public:
 	inline const int& getHP() const 
 	{ 
@@ -41,6 +57,11 @@ public:
 	inline const int& getMP() const
 	{ 
 		return m_nPlayerMP;
+	}
+
+	inline const int& getAttack() const
+	{
+		return m_nPlayerAttack;
 	}
 
 	inline const int& getMaxHP() const
@@ -63,6 +84,16 @@ public:
 		return m_nScore;
 	}
 
+	inline const int& getEXP() const
+	{
+		return m_nPlayerEXP;
+	}
+
+	inline const int& getLevel() const
+	{
+		return m_nLevel;
+	}
+
 	inline const int& getHighScore() const
 	{ 
 		return m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_HIGH_SCORE)];
@@ -78,10 +109,19 @@ private:
 	int m_nPlayerHP;
 	int m_nPlayerMP;
 	int m_nPlayerEXP;
-private:
+	int m_nPlayerAttack;
 	int m_nScore;
+	int m_nLevel;
+private:
+	unsigned int m_nMaxScore;
 private:
 	int m_arSaveStatus[static_cast<int>(E_PLAYER_STATUS::E_MAX)]{};
+private:
+	std::string m_strEncryptKey{};
+private:
+	std::string m_arSaveStatusName[static_cast<int>(E_PLAYER_STATUS::E_MAX)]{};
+private:
+	void(C_PlayerState::*m_arAddFuncs[static_cast<int>(E_GAIN_STAT::E_MAX)])(const int);
 private:
 	static C_PlayerState* m_pInstance;
 private:

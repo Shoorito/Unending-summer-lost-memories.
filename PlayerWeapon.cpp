@@ -1,9 +1,12 @@
 #include "PlayerWeapon.h"
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
-#include "PlayScene.h"
+#include "PlayerState.h"
 #include "EnemyManager.h"
+#include "ItemManager.h"
 #include "Enemy.h"
+#include "Boss.h"
+#include "Item.h"
 
 C_PlayerWeapon * C_PlayerWeapon::create()
 {
@@ -83,8 +86,8 @@ void C_PlayerWeapon::homing(C_Enemy* pEnemy)
 	float fShotAngle(0.0f);
 	float fRotation(0.0f);
 
-	fShotAngle	= atan2f(getPositionY() - pEnemy->getPositionY(), pEnemy->getPositionX() - getPositionX());
-	fRotation	= fShotAngle * 180.0f / 3.141592f;
+	fShotAngle = atan2f(getPositionY() - pEnemy->getPositionY(), pEnemy->getPositionX() - getPositionX());
+	fRotation  = fShotAngle * 180.0f / 3.141592f;
 
 	setRotation(fRotation + 90.0f);
 	addPositionX(cosf(-fShotAngle) * m_fSpeed);
@@ -94,8 +97,12 @@ void C_PlayerWeapon::homing(C_Enemy* pEnemy)
 void C_PlayerWeapon::updateBySubWeapon()
 {
 	C_Enemy* pHomingTarget(nullptr);
+	C_EnemyManager* pManager(nullptr);
 
-	pHomingTarget = C_EnemyManager::getInstance()->getImmediateEnemy(getPosition());
+	pManager = C_EnemyManager::getInstance();
+
+	if(pManager && pManager->getCount(E_USE_TYPE::E_USED))
+		pHomingTarget = pManager->getImmediateEnemy(getPosition());
 
 	if (!pHomingTarget)
 		addPositionY(m_fSpeed);
@@ -110,12 +117,43 @@ void C_PlayerWeapon::updateByWeapon()
 
 const bool C_PlayerWeapon::onIntersectsEnemy()
 {
+	int nEnemyNums(0);
+	C_EnemyManager* pEManager(nullptr);
+
+	pEManager  = C_EnemyManager::getInstance();
+	nEnemyNums = pEManager->getCount(E_USE_TYPE::E_USED);
+
+	pEManager->initCursor(E_USE_TYPE::E_USED);
+
+	for (int nEnemy(0); nEnemy < nEnemyNums; nEnemy++)
+	{
+		Rect	 recWeapon(Rect::ZERO);
+		C_Enemy* pEnemy(nullptr);
+
+		pEnemy	  = pEManager->getCursor(E_USE_TYPE::E_USED);
+		recWeapon = getBoundingBox();
+
+		if (pEnemy->getBoundingBox().intersectsRect(recWeapon))
+		{
+			pEnemy->setHP(pEnemy->getHP() - C_PlayerState::getInstance()->getAttack());
+
+			if (pEnemy->getHP() <= 0)
+			{
+				C_Functions::dropItem(pEnemy);
+			}
+
+			return true;
+		}
+
+		pEManager->moveCursor(E_USE_TYPE::E_USED);
+	}
+
 	return false;
 }
 
 const bool C_PlayerWeapon::onIntersectsBorder()
 {
-	return !C_PlayScene::getInstance()->getWinArea().containsPoint(getPosition());
+	return !g_recWinArea.containsPoint(getPosition());
 }
 
 void C_PlayerWeapon::update(float fDelay)

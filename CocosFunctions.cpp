@@ -1,5 +1,9 @@
 #include "CocosFunctions.h"
 #include "ResourceTable.h"
+#include "Item.h"
+#include "Boss.h"
+#include "Enemy.h"
+#include "ItemManager.h"
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformMacros.h"
 
@@ -43,7 +47,7 @@ void C_Functions::encryptText(std::string & strTarget, const std::string & strEn
 	}
 }
 
-void C_Functions::convertToString(const int nTarget, std::string & strResult)
+void C_Functions::convertToString(const int & nTarget, std::string & strResult)
 {
 	int nPreSize(0);
 	int nNowSize(0);
@@ -72,6 +76,40 @@ void C_Functions::convertToString(const int nTarget, std::string & strResult)
 			nPosition++;
 		}
 	}
+}
+
+const std::string C_Functions::convertToString(const int & nTarget)
+{
+	int nPreSize(0);
+	int nNowSize(0);
+	int nPosition(1);
+	std::string strResult("");
+
+	strResult = std::to_string(nTarget);
+	nPreSize = static_cast<int>(strResult.size());
+
+	for (int nCount(0); nPreSize >= g_arInitScore[nCount]; nCount++)
+	{
+		strResult.push_back('0');
+	}
+
+	nNowSize = static_cast<int>(strResult.size());
+
+	for (int nCount(1); nCount <= nNowSize; nCount++)
+	{
+		if (nCount % 4 == 0)
+		{
+			strResult[nNowSize - nCount] = ',';
+		}
+		else
+		{
+			strResult[nNowSize - nCount] = strResult[nPreSize - nPosition];
+
+			nPosition++;
+		}
+	}
+
+	return strResult;
 }
 
 int C_Functions::getDigits(const int nNumber)
@@ -171,4 +209,103 @@ const int C_Functions::convertToInt(const std::string & strTarget)
 	}
 	
 	return nResult;
+}
+
+void C_Functions::swap(void * pSrc, void * pDst)
+{
+	void* pTemp(nullptr);
+
+	pTemp = pSrc;
+
+	pSrc = pDst;
+	
+	pDst = pTemp;
+}
+
+const float C_Functions::getHomingAngle(const Vec2& vecStartpos, const Vec2& vecEndpos)
+{
+	return atan2f(vecStartpos.y - vecEndpos.y, vecEndpos.x - vecStartpos.x) * 180.0f / 3.141592f;
+}
+
+void C_Functions::dropItem(C_Enemy * pTarget)
+{
+	int arDrop[static_cast<int>(E_ITEM_TYPE::E_MAX)]{};
+	E_ENEMY_TYPE eEnemyType(E_ENEMY_TYPE::E_NORMAL);
+	C_ItemManager* pManager(nullptr);
+
+	pManager = C_ItemManager::getInstance();
+	eEnemyType = pTarget->getType();
+
+	if (eEnemyType == E_ENEMY_TYPE::E_BOSS)
+	{
+		C_Boss* pBoss(nullptr);
+
+		pBoss = static_cast<C_Boss*>(pTarget);
+
+		if (pBoss->getBossType() == E_BOSS_TYPE::E_NORMAL)
+		{
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_HP)] = 10;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_MP)] = 10;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_EXP)] = 10;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_SCORE)] = 20;
+		}
+		else
+		{
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_HP)] = 5;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_MP)] = 5;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_EXP)] = 10;
+			arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_SCORE)] = 20;
+		}
+	}
+	else if (eEnemyType == E_ENEMY_TYPE::E_NORMAL)
+	{
+		arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_HP)] = 1;
+		arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_MP)] = 1;
+		arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_EXP)] = 1;
+		arDrop[static_cast<int>(E_ITEM_TYPE::E_UP_SCORE)] = 1;
+	}
+
+	for (int nType(0); nType < static_cast<int>(E_ITEM_TYPE::E_MAX); nType++)
+	{
+		for (int nItemNum(0); nItemNum < arDrop[nType]; nItemNum++)
+		{
+			C_Item*	pItem(nullptr);
+
+			pItem = pManager->popItem(E_USE_TYPE::E_NOT_USED);
+
+			if (!pItem)
+			{
+				return;
+			}
+
+			pItem->setUseType(E_USE_TYPE::E_USED);
+			pItem->setType(static_cast<E_ITEM_TYPE>(nType));
+			pItem->setAddValue
+			(
+				random
+				(
+					g_arItemValueMin[nType > static_cast<int>(E_ITEM_TYPE::E_UP_EXP)],
+					g_arItemValueMax[nType > static_cast<int>(E_ITEM_TYPE::E_UP_EXP)]
+				)
+			);
+
+			pItem->setTextureRect
+			(
+				Rect
+				(
+					g_fItemWidth * static_cast<float>(nType),
+					0.0f,
+					g_fItemWidth,
+					g_fItemHeight
+				)
+			);
+
+			pItem->setPosition(pTarget->getPosition());
+			pItem->addPosition(random(-100.0f, 100.0f), random(-100.0f, 100.0f));
+			pItem->setEnabled(true);
+			pItem->startShowAct();
+
+			pManager->pushItem(pItem);
+		}
+	}
 }
