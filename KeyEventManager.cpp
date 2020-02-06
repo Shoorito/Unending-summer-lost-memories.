@@ -62,14 +62,6 @@ void C_KeyEvent_Manager::preset()
 	scheduleUpdate();
 }
 
-void C_KeyEvent_Manager::onEnter()
-{
-	Node::onEnter();
-
-	if (!m_isEnabled)
-		pause();
-}
-
 void C_KeyEvent_Manager::createKeyEvent()
 {
 	m_pKeyListener = EventListenerKeyboard::create();

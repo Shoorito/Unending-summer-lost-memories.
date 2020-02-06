@@ -24,7 +24,7 @@ C_Timer * C_Timer::create()
 	return pTimer;
 }
 
-void C_Timer::startTimer(const unsigned int nTime)
+void C_Timer::startTimer(const int nTime)
 {
 	enableOutline(Color4B(0, 0, 0, 0));
 	setTimer(nTime);
@@ -38,7 +38,7 @@ void C_Timer::stopTimer()
 	setTimer(0);
 }
 
-void C_Timer::setTimer(const unsigned int nTime)
+void C_Timer::setTimer(const int nTime)
 {
 	std::string strTime("");
 

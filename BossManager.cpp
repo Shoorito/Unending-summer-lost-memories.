@@ -295,7 +295,7 @@ void C_BossManager::bossShow()
 void C_BossManager::bossPreFight()
 {
 	m_pBoss->initStart();
-	m_pBoss->setStartStat();
+	m_pBoss->setStartHP();
 
 	m_pSummonEffect->setVisible(true);
 	m_pSummonEffect->start();

@@ -378,7 +378,7 @@ void C_TalkManager::update(float fDelay)
 		if (m_nPageNumber == static_cast<int>(m_vecDialogueList.size()))
 		{
 			setEnabled(false);
-			C_FieldManager::getInstance()->event09();
+			C_FieldManager::getInstance()->callGameClear();
 			return;
 		}
 

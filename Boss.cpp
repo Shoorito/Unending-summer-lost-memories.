@@ -146,7 +146,7 @@ void C_Boss::update(float fDelay)
 	addUpdateCount(1);
 }
 
-void C_Boss::setStartStat()
+void C_Boss::setStartHP()
 {
 	C_BossStatus* pStatus(nullptr);
 

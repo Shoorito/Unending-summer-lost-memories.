@@ -69,22 +69,8 @@ void C_BossStatus::addSpellName(const std::string & strSpellName, const int nPos
 void C_BossStatus::removeBarType()
 {
 	m_vecBarTypeList.pop_back();
-}
-
-void C_BossStatus::removeBarHP(const int nPosition)
-{
-	if (nPosition >= static_cast<int>(m_vecHPList.size()))
-		return;
-
-	m_vecHPList[nPosition].pop_back();
-}
-
-void C_BossStatus::removeSpellName(const int nPosition)
-{
-	if (nPosition >= static_cast<int>(m_vecSpellList.size()))
-		return;
-
-	m_vecSpellList[nPosition].pop_back();
+	m_vecSpellList.pop_back();
+	m_vecHPList.pop_back();
 }
 
 void C_BossStatus::clearName()

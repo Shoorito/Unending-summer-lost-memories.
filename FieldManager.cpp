@@ -288,7 +288,7 @@ void C_FieldManager::event07()
 	pMiddleBoss->setType(E_ENEMY_TYPE::E_BOSS);
 	pMiddleBoss->setBossType(E_BOSS_TYPE::E_MIDDLE);
 	pMiddleBoss->initStart();
-	pMiddleBoss->setStartStat();
+	pMiddleBoss->setStartHP();
 	pMiddleBoss->setPosition(640.0f, 700.0f);
 	pMiddleBoss->setTextureWithRect("middleBoss.png", Rect(0.0f, 0.0f, 100.0f, 87.0f));
 	pMiddleBoss->addAnimationWithRects(Rect(0.0f, 0.0f, 100.0f, 87.0f), 5, 0.2f);
@@ -351,7 +351,7 @@ void C_FieldManager::event08()
 	pHpBar->setGaugeColor(g_arGaugeColor[1], 0);
 
 	pBoss->initStart();
-	pBoss->setStartStat();
+	pBoss->setStartHP();
 	pBoss->stopAllActions();
 	pBoss->setTexture("Boss.png");
 	pBoss->setPosition(640.0f, 550.0f);
@@ -361,7 +361,7 @@ void C_FieldManager::event08()
 	C_TalkManager::getInstance()->startTalkEvent();
 }
 
-void C_FieldManager::event09()
+void C_FieldManager::callGameClear()
 {
 	allPause();
 	setEnabled(false);
